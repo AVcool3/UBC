@@ -1,0 +1,30 @@
+{
+  "name": "ghost-checkout-contracts",
+  "private": true,
+  "description": "Anchor program, tests and deploy scripts for Ghost Checkout",
+  "scripts": {
+    "test": "anchor test",
+    "init-config": "tsx scripts/init-config.ts",
+    "seed-demo": "tsx scripts/seed-demo.ts",
+    "export-idl": "tsx scripts/export-idl.ts",
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+  },
+  "dependencies": {
+    "@coral-xyz/anchor": "0.32.1",
+    "@solana/spl-token": "^0.4.14",
+    "@solana/web3.js": "^1.98.4",
+    "tweetnacl": "^1.0.3"
+  },
+  "devDependencies": {
+    "@types/bn.js": "^5.1.6",
+    "@types/chai": "^4.3.20",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^22.10.0",
+    "chai": "^4.5.0",
+    "mocha": "^10.8.2",
+    "prettier": "^3.4.2",
+    "ts-mocha": "^10.1.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.3"
+  }
+}

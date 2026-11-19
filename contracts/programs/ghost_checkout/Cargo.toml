@@ -1,0 +1,26 @@
+[package]
+name = "ghost_checkout"
+version = "0.1.0"
+description = "Private, escrowed checkout for social commerce on Solana"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "ghost_checkout"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+# Declared so Anchor's macros don't emit "unexpected cfg" warnings.
+custom-heap = []
+custom-panic = []
+anchor-debug = []
+
+[dependencies]
+# init-if-needed lets release/refund create the recipient's USDC account on the fly.
+anchor-lang = { version = "0.32.1", features = ["init-if-needed"] }
+anchor-spl = { version = "0.32.1", features = ["token", "associated_token"] }
