@@ -1,0 +1,16 @@
+# --- dependencies / builds ---
+node_modules/
+.next/
+out/
+contracts/target/
+contracts/.anchor/
+contracts/test-ledger/
+*.tsbuildinfo
+next-env.d.ts
+
+# --- secrets: never commit keys or env files ---
+contracts/keys/
+.env
+.env.local
+frontend/.env.local
+*.keypair.json
