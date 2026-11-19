@@ -12,7 +12,10 @@
  *  5. Prints the values to paste into frontend/.env.local
  *
  * Optional env vars:
- *   USDC_MINT               mint to use (default: Circle devnet USDC; on localnet a test mint is created)
+ *   USDC_MINT               mint to use. Default: Circle devnet USDC on devnet, a new test mint on localnet.
+ *                           Set USDC_MINT=create to make a test mint on ANY cluster (needed for demo mode:
+ *                           its mint authority is keys/faucet.json, which the app's faucet uses).
+ *   FAUCET_SOL              SOL to give the faucet key when a test mint is created (default 1)
  *   SHIP_WINDOW_SECS        default 600   (10 min — short for demos; use 259200 = 3 days in production)
  *   INSPECTION_WINDOW_SECS  default 300   (5 min — use 172800 = 48h in production)
  */
@@ -96,13 +99,26 @@ async function main() {
     usdcMint = existing.usdcMint;
     console.log("\nConfig already initialized — leaving it as is.");
   } else {
-    if (process.env.USDC_MINT) {
+    const wantTestMint = process.env.USDC_MINT === "create" || (!process.env.USDC_MINT && local);
+    if (wantTestMint) {
+      // A 6-decimal test token whose mint authority is a dedicated faucet key.
+      // The app's /api/demo/faucet (and scripts/faucet.ts) mint from it.
+      const faucet = loadOrCreateKeypair("faucet.json");
+      usdcMint = await createMint(provider.connection, admin, faucet.publicKey, null, 6);
+      fs.writeFileSync(path.join(KEYS_DIR, "test-usdc-mint.txt"), usdcMint.toBase58());
+      const faucetSol = Number(process.env.FAUCET_SOL ?? 1);
+      await provider.sendAndConfirm(
+        new Transaction().add(
+          SystemProgram.transfer({
+            fromPubkey: admin.publicKey,
+            toPubkey: faucet.publicKey,
+            lamports: Math.round(faucetSol * LAMPORTS_PER_SOL),
+          })
+        )
+      );
+      console.log(`Created test USDC mint ${usdcMint.toBase58()} (faucet ${faucet.publicKey.toBase58()}, ${faucetSol} SOL)`);
+    } else if (process.env.USDC_MINT) {
       usdcMint = new PublicKey(process.env.USDC_MINT);
-    } else if (local) {
-      // Local chain has no USDC, so create a 6-decimal test token you control.
-      usdcMint = await createMint(provider.connection, admin, admin.publicKey, null, 6);
-      fs.writeFileSync(path.join(KEYS_DIR, "local-usdc-mint.txt"), usdcMint.toBase58());
-      console.log(`Created local test USDC mint ${usdcMint.toBase58()} (use scripts/faucet.ts to mint)`);
     } else {
       usdcMint = new PublicKey(DEVNET_USDC);
     }
@@ -126,6 +142,7 @@ async function main() {
   console.log(`Carrier console file: ${consoleFile}  (load it on the app's /carrier page)`);
   console.log(`Arbiter (disputes):   your admin wallet ${admin.publicKey.toBase58()}`);
   console.log(`USDC mint:            ${usdcMint.toBase58()}`);
+  console.log("\nFor demo mode (hosted app), run `npm run seed-demo` then `npm run demo-env`.");
 }
 
 main().catch((e) => {

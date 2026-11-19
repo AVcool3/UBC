@@ -9,7 +9,7 @@
 import * as anchor from "@coral-xyz/anchor";
 import { getOrCreateAssociatedTokenAccount, mintTo } from "@solana/spl-token";
 import { LAMPORTS_PER_SOL, PublicKey } from "@solana/web3.js";
-import { configPda, getProgram, getProvider, isLocal } from "./common";
+import { configPda, getProgram, getProvider, isLocal, loadOrCreateKeypair } from "./common";
 
 async function main() {
   const [walletArg, amountArg = "100"] = process.argv.slice(2);
@@ -28,7 +28,9 @@ async function main() {
   await provider.connection.confirmTransaction(sig, "confirmed");
 
   const ata = await getOrCreateAssociatedTokenAccount(provider.connection, admin, usdcMint, wallet);
-  await mintTo(provider.connection, admin, usdcMint, ata.address, admin, Math.round(Number(amountArg) * 1_000_000));
+  // The test mint's authority is keys/faucet.json (created by init-config).
+  const faucet = loadOrCreateKeypair("faucet.json");
+  await mintTo(provider.connection, admin, usdcMint, ata.address, faucet, Math.round(Number(amountArg) * 1_000_000));
   console.log(`Sent ${amountArg} test USDC + 2 SOL to ${wallet.toBase58()}`);
 }
 

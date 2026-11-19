@@ -9,6 +9,7 @@ import { Suspense, useState } from "react";
 import { OrderCard } from "@/components/OrderCard";
 import { Button, Card, EmptyState, ErrorBlock, LoadingBlock, PageTitle } from "@/components/ui";
 import { openDispute, refundUnshipped, releasePayment } from "@/lib/actions";
+import { callDemo, DEMO_MODE } from "@/lib/demo";
 import { relative } from "@/lib/format";
 import { useConfig, useMarket, useNow, useOrders } from "@/lib/hooks";
 import { useGhostProgram } from "@/lib/program";
@@ -56,17 +57,39 @@ function OrdersInner() {
         ) : (
           <span className="text-muted">Seller must ship {relative(a.shipDeadline.toNumber(), now)} — or you&apos;re refunded.</span>
         ),
-        actions: late && (
+        actions: late ? (
           <Button
             loading={busy === key + "Refunding"}
             onClick={() => act(key, "Refunding", () => refundUnshipped(program, cfg, wallet!.publicKey, o.publicKey, a))}
           >
             Get my refund
           </Button>
+        ) : (
+          DEMO_MODE && (
+            <Button
+              variant="secondary"
+              loading={busy === key + "Seller shipping (simulated)"}
+              onClick={() => act(key, "Seller shipping (simulated)", () => callDemo("advance", { order: key }))}
+            >
+              ▶ Play seller: ship it
+            </Button>
+          )
         ),
       };
     }
-    if (status === "shipped") return { info: <span className="text-muted">On its way. The carrier confirms delivery.</span>, actions: null };
+    if (status === "shipped")
+      return {
+        info: <span className="text-muted">On its way. The carrier confirms delivery.</span>,
+        actions: DEMO_MODE && (
+          <Button
+            variant="secondary"
+            loading={busy === key + "Carrier delivering (simulated)"}
+            onClick={() => act(key, "Carrier delivering (simulated)", () => callDemo("advance", { order: key }))}
+          >
+            ▶ Play carrier: deliver it
+          </Button>
+        ),
+      };
     if (status === "delivered") {
       const open = now < a.releaseAfter.toNumber();
       return {
@@ -98,7 +121,28 @@ function OrdersInner() {
         ),
       };
     }
-    if (status === "disputed") return { info: <span className="text-warn">The arbiter is reviewing your dispute. Funds are frozen in escrow.</span>, actions: null };
+    if (status === "disputed")
+      return {
+        info: <span className="text-warn">The arbiter is reviewing your dispute. Funds are frozen in escrow.</span>,
+        actions: DEMO_MODE && (
+          <>
+            <Button
+              variant="secondary"
+              loading={busy === key + "Arbiter refunding (simulated)"}
+              onClick={() => act(key, "Arbiter refunding (simulated)", () => callDemo("arbiter", { order: key, refundBuyer: true }))}
+            >
+              ▶ Play arbiter: refund me
+            </Button>
+            <Button
+              variant="ghost"
+              loading={busy === key + "Arbiter paying seller (simulated)"}
+              onClick={() => act(key, "Arbiter paying seller (simulated)", () => callDemo("arbiter", { order: key, refundBuyer: false }))}
+            >
+              ▶ Side with seller
+            </Button>
+          </>
+        ),
+      };
     return { info: null, actions: null };
   }
 

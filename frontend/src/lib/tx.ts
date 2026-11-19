@@ -34,6 +34,8 @@ export async function withToast(label: string, send: () => Promise<string>): Pro
   const id = toast.loading(`${label}…`, { description: "Approve in your wallet" });
   try {
     const sig = await send();
+    // Tell every data hook on the page to refresh (balances, orders, stats).
+    window.dispatchEvent(new Event("ghost-checkout:chain-changed"));
     toast.success(label, {
       id,
       description: "Confirmed on Solana",

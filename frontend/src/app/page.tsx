@@ -5,6 +5,7 @@
  */
 import { useState } from "react";
 import { CheckoutModal } from "@/components/CheckoutModal";
+import { DemoBanner } from "@/components/DemoBanner";
 import { ProductArt } from "@/components/ProductArt";
 import { TrustChip, trustOf } from "@/components/SellerTrust";
 import { SetupNotice } from "@/components/SetupNotice";
@@ -49,6 +50,7 @@ export default function ShopPage() {
         </div>
       </section>
 
+      <DemoBanner />
       {config.data === null && !config.loading && <SetupNotice />}
       {market.error && <ErrorBlock error={market.error} onRetry={market.refresh} />}
       {market.loading && !market.data && <LoadingBlock />}

@@ -5,7 +5,7 @@
  */
 import { BN } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
-import type { GhostProgram } from "./program";
+import type { GhostProgram } from "./core";
 import type { ConfigAccount, OrderAccount } from "./types";
 import { configPda, listingPda, orderPda, sellerPda, usdcAta } from "./pda";
 

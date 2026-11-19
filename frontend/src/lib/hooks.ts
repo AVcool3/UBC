@@ -12,6 +12,9 @@ import type { ConfigAccount, ListingAccount, OrderAccount, SellerAccount, WithKe
 
 const POLL_MS = 8000;
 
+/** Window event fired after every confirmed transaction. */
+export const CHAIN_CHANGED_EVENT = "ghost-checkout:chain-changed";
+
 /** Generic "load now, then every N ms" hook with a manual refresh(). */
 export function usePolling<T>(load: (() => Promise<T>) | null, deps: unknown[], intervalMs = POLL_MS) {
   const [data, setData] = useState<T | null>(null);
@@ -39,7 +42,13 @@ export function usePolling<T>(load: (() => Promise<T>) | null, deps: unknown[], 
     setLoading(true);
     refresh();
     const t = setInterval(refresh, intervalMs);
-    return () => clearInterval(t);
+    // Any confirmed transaction (see tx.ts) tells every hook to re-read the chain now,
+    // so balances and statuses everywhere on the page update together.
+    window.addEventListener(CHAIN_CHANGED_EVENT, refresh);
+    return () => {
+      clearInterval(t);
+      window.removeEventListener(CHAIN_CHANGED_EVENT, refresh);
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
 

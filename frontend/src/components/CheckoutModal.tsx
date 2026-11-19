@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { placeOrder } from "@/lib/actions";
 import { USDC_FAUCET_HINT } from "@/lib/contracts";
+import { callDemo, DEMO_MODE } from "@/lib/demo";
 import { MAX_ADDRESS_BYTES, sealAddress } from "@/lib/crypto";
 import { short, usd } from "@/lib/format";
 import { useUsdcBalance } from "@/lib/hooks";
@@ -32,7 +33,7 @@ export function CheckoutModal({ listing, seller, config, onClose }: Props) {
   const router = useRouter();
   const { program, wallet } = useGhostProgram();
   const { setVisible } = useWalletModal();
-  const { data: balance } = useUsdcBalance(config.usdcMint, wallet?.publicKey);
+  const { data: balance, refresh: refreshBalance } = useUsdcBalance(config.usdcMint, wallet?.publicKey);
   const [busy, setBusy] = useState(false);
   const [form, setForm] = useState({ name: "", street: "", city: "", postal: "", country: "" });
 
@@ -147,7 +148,20 @@ export function CheckoutModal({ listing, seller, config, onClose }: Props) {
             {wallet ? (
               <>
                 Your USDC: <span className="font-semibold text-ink">{balance === null ? "…" : usd(balance)}</span>
-                {notEnoughUsdc && <span className="block text-xs text-warn">Not enough USDC. {USDC_FAUCET_HINT}</span>}
+                {notEnoughUsdc &&
+                  (DEMO_MODE ? (
+                    <button
+                      className="block text-xs font-semibold text-accent underline"
+                      onClick={async () => {
+                        if (await withToast("Adding $20 test USDC", () => callDemo("faucet", { wallet: wallet.publicKey.toBase58() })))
+                          await refreshBalance();
+                      }}
+                    >
+                      Get $20 test money
+                    </button>
+                  ) : (
+                    <span className="block text-xs text-warn">Not enough USDC. {USDC_FAUCET_HINT}</span>
+                  ))}
               </>
             ) : (
               "Connect a wallet to pay"
