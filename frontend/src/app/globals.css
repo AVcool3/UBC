@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* Design tokens — change colours here and the whole app follows.
+   Use them in classes like bg-surface, text-muted, border-line, text-accent. */
+@theme {
+  --color-bg: #09090e;
+  --color-surface: #12121a;
+  --color-surface-2: #1a1a25;
+  --color-line: #272735;
+  --color-ink: #ededf4;
+  --color-muted: #9898ad;
+  --color-accent: #b4a0ff;
+  --color-accent-strong: #8b6cff;
+  --color-good: #3ddc97;
+  --color-warn: #f5c451;
+  --color-bad: #ff6b81;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+html,
+body {
+  background: var(--color-bg);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Restyle the Solana wallet button to match the app. */
+.wallet-adapter-button-trigger,
+.wallet-adapter-button {
+  background: var(--color-accent-strong) !important;
+  border-radius: 9999px !important;
+  height: 40px !important;
+  font-family: var(--font-sans) !important;
+  font-size: 14px !important;
+  padding: 0 18px !important;
+}
+.wallet-adapter-modal-wrapper {
+  background: var(--color-surface) !important;
+  font-family: var(--font-sans) !important;
+}
+
+/* TikTok-style vertical snap feed. */
+.snap-feed {
+  scroll-snap-type: y mandatory;
+}
+.snap-feed > * {
+  scroll-snap-align: start;
+}
