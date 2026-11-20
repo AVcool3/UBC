@@ -22,6 +22,7 @@ Ghost Checkout is a private, escrowed checkout for social commerce (TikTok Shop 
 | **Chain award** | Best use of Solana |
 | **Program ID (Solana devnet)** | [`9TBWXeFennM42nASPhYY78vbNGiMQK252csS9TdgKxdD`](https://explorer.solana.com/address/9TBWXeFennM42nASPhYY78vbNGiMQK252csS9TdgKxdD?cluster=devnet) |
 | **Try it** | Open the live app and click **Create demo account → Get $20 test money**. No wallet app, seed phrase or crypto needed (see [Demo mode](#5-demo-mode-try-it-alone-in-a-minute)). |
+| **Buy from a post** | Every product is a **Solana Blink**: click **Share ⚡** on any card and open the Blink to buy straight from a social post (see [Blinks](#buy-from-a-post-solana-blinks)). |
 
 The crypto stays invisible: no seed phrases, no gas, just "Pay $2.00 privately".
 
@@ -53,6 +54,30 @@ The crypto stays invisible: no seed phrases, no gas, just "Pay $2.00 privately".
 
 **Trust assumptions (stated plainly):** the *carrier* is trusted to attest delivery honestly, and the *arbiter* (config admin) is trusted to rule on disputes. Both are single keys in this version. Every decision they make is public and permanent, and both can be rotated with `update_config`. A production version would use a carrier oracle network and a multisig or DAO arbiter. See [Judge Q&A](#judge-qa).
 
+### Buy from a post (Solana Blinks)
+
+Social commerce happens in the feed, so checkout should too. Every listing is a [Solana Action](https://solana.com/docs/advanced/actions): a seller posts the product link (`https://<site>/buy/<listing>`) and Blink-aware wallets on X unfurl it into a buy card, with no app switch.
+
+The card shows the price, the seller's **on-chain track record**, and a red warning for risky sellers *before* anyone pays. The buyer types a name and address and presses **Buy privately**. Their own wallet signs the same `place_order` transaction the website sends, so the USDC goes into the same escrow. Afterwards the card turns into **Track my order** (action chaining).
+
+| Endpoint | What it does |
+|---|---|
+| `GET /actions.json` | Maps `/buy/*` product links to the Action API (spec v2.4, CORS open). |
+| `GET /api/actions/buy/<listing>` | The card: image, price, seller trust, name + address fields. Paused listings render disabled. |
+| `POST /api/actions/buy/<listing>` | `{ account, data }` → a `place_order` transaction for the buyer's wallet to sign. |
+| `GET /api/actions/art/<listing>` | PNG product card (for listings with no photo). |
+| `POST /api/actions/track?order=…` | The chained **Track my order** button → opens **My orders**. |
+
+**Brand-new wallets just work on devnet.** In demo mode, if the buyer has no test USDC or SOL, the faucet adds them *inside the same transaction* and pays the fee. The faucet signs first, and the buyer's signature is the only one missing. A judge with an empty Phantom devnet wallet can buy from a Blink in one click.
+
+**Privacy trade-off, stated plainly.** On the website, the address is encrypted in your browser. A Blink card can't run our code, so in a Blink the address reaches our Action server, which immediately seals it to the carrier's key and returns only ciphertext. Our code never stores or logs it. Blink clients send form values in the request URL, though, so the host's access logs should be treated as private. The on-chain result is identical. Buyers who don't want to trust the server can use the **Buy privately** button on the product page instead.
+
+To try it: open any product → **Share as Blink** → **Open the Blink** (Dialect's viewer at dial.to), with your wallet on **devnet**. Or run the spec-level end-to-end check, which uses a fresh wallet with 0 SOL and 0 USDC:
+
+```bash
+cd contracts && BLINK_BASE=https://<your-app> npm run test-blink
+```
+
 ---
 
 ## How Ghost Checkout uses Solana
@@ -67,6 +92,8 @@ The crypto stays invisible: no seed phrases, no gas, just "Pay $2.00 privately".
 | **Permissionless instructions** | `refund_unshipped`, `release_payment` | Anyone (a buyer, a friend or a bot) can enforce deadlines. No backend can block a refund. |
 | **Program events** | `events.rs` | Every state change emits an event with all relevant keys, ready for indexers and alerts. |
 | **Wallet Standard + wallet adapter** | `Providers.tsx`, `demoWallet.ts` | Phantom, Solflare and Backpack are auto-detected. The Demo Wallet is a custom adapter for people with no wallet. |
+| **Solana Actions + Blinks** | `app/api/actions`, `actions.json` | Any post on X becomes a checkout. The card shows on-chain seller reputation, and the buyer's own wallet signs the escrow transaction. |
+| **Partially signed (sponsored) transactions** | `api/actions/buy` | In demo mode, the faucet pays fees and mints test USDC inside the buyer's own transaction, so empty wallets can buy in one click. |
 | **Speed and low fees** | — | An escrowed order costs a fraction of a cent in fees and confirms in about a second, so escrow is practical even for a $2 impulse buy. |
 
 ## Judge Q&A
@@ -89,7 +116,7 @@ The seller never sees a name, card, phone or readable address. The buyer's walle
 **What would you build next?**
 - A real carrier integration (label APIs that accept the encrypted address).
 - A multisig arbiter.
-- Seller "Buy" links (Solana Blinks) that work inside social posts.
+- Register the Blinks with Dialect so they unfurl for everyone on X (mainnet).
 - A 0.5% protocol fee for revenue.
 - Confidential transfers for payer privacy.
 
@@ -117,6 +144,8 @@ ubc/
 │       ├── init-config.ts          post-deploy setup (carrier keys, config, prints .env values)
 │       ├── seed-demo.ts            demo sellers + listings (real on-chain txs)
 │       ├── faucet.ts               local-only test USDC faucet
+│       ├── seed-history.ts         gives demo sellers a real on-chain track record
+│       ├── test-blink.ts           Blink end-to-end check, acting as a spec-compliant client
 │       ├── demo-env.ts             prints the env vars for a hosted demo-mode app
 │       └── export-idl.ts           copies IDL + types into the frontend
 └── frontend/                       Next.js 15 (App Router) + TypeScript + Tailwind v4
@@ -128,6 +157,9 @@ ubc/
         │   ├── core.ts             Anchor client usable in browser and server routes
         │   ├── demoWallet.ts       no-install Demo Wallet adapter
         │   ├── server/demo.ts      server-only key loading for the demo API
+        │   ├── server/actions.ts   Solana Actions headers, CORS + errors
+        │   ├── blink.ts            share links (product page, Action URL, dial.to)
+        │   ├── trust.ts            seller reputation math (UI + Blink)
         │   ├── actions.ts          every instruction call, with its accounts
         │   ├── crypto.ts           address sealing (NaCl box) + tracking hash
         │   ├── hooks.ts            live data hooks (poll the chain every 8s)
@@ -137,6 +169,9 @@ ubc/
         ├── components/             UI building blocks (checkout modal, order card, trust stats…)
         └── app/
             ├── api/demo/           faucet, autopilot (seller + carrier) and arbiter routes
+            ├── api/actions/        Solana Actions: buy Blink, product image, track link
+            ├── actions.json/       maps /buy/* links to the Action API
+            ├── buy/[listing]/      shareable product page (the link sellers post)
             ├── page.tsx            Shop feed
             ├── orders/             Buyer dashboard
             ├── sell/               Seller dashboard
@@ -303,6 +338,12 @@ cd contracts && USDC_MINT=create SHIP_WINDOW_SECS=120 INSPECTION_WINDOW_SECS=90 
 npm run seed-demo && npm run demo-env
 ```
 
+Optionally, give the demo sellers a real track record (Glow Lab and Pocket Gadget get delivered orders, and FlashDeals99 gets non-shipment refunds). Every counter changes only through real orders:
+
+```bash
+npm run seed-history
+```
+
 `demo-env` writes every variable the app needs to `contracts/keys/vercel.env`. These are test-network keys only.
 
 ### 6. Host it on Vercel
@@ -326,8 +367,9 @@ solana -u devnet airdrop 1 $(solana address -k contracts/keys/faucet.json)
 4. **(1:05) Seller view.** `Ghost 9fU6…`, a QR code, no address. Mark shipped.
 5. **(1:25) Carrier view.** Decrypt (the only place the address exists in plain text), then confirm delivered.
 6. **(1:45) Protection.** Report the item as fake → arbiter refunds. Then show FlashDeals99, which never shipped: the buyer got an automatic refund, and the seller's public record now shows it permanently.
-7. **(2:15) Proof.** Open the seller's account on Solana Explorer: "these numbers are written by the escrow program; nobody can edit them."
-8. **(2:35) Close.** "Ghost Checkout: buy from anyone, reveal nothing, pay only on delivery."
+7. **(2:05) Blink.** Hit **Share ⚡**, then open the Blink: "sellers drop this in a post, and buyers pay into the same escrow without leaving X." Show the red warning on FlashDeals99's card.
+8. **(2:20) Proof.** Open the seller's account on Solana Explorer: "these numbers are written by the escrow program; nobody can edit them."
+9. **(2:40) Close.** "Ghost Checkout: buy from anyone, reveal nothing, pay only on delivery."
 
 ---
 
