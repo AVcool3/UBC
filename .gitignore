@@ -10,6 +10,7 @@ next-env.d.ts
 
 # --- secrets: never commit keys or env files ---
 contracts/keys/
+contracts/keys-localnet/
 .env
 .env.local
 frontend/.env.local
