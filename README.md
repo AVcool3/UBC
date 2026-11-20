@@ -232,6 +232,12 @@ solana config set --url devnet && solana balance
 cd contracts && anchor deploy --provider.cluster devnet
 ```
 
+If the upload stalls with "Max retries exceeded" (common on the public devnet RPC or behind strict networks), deploy through RPC instead:
+
+```bash
+solana program deploy -u devnet --program-id target/deploy/ghost_checkout-keypair.json --use-rpc --with-compute-unit-price 10000 target/deploy/ghost_checkout.so
+```
+
 ```bash
 npm run init-config
 ```
