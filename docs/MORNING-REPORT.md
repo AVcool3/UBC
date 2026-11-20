@@ -6,6 +6,9 @@ Your hypothesis was a firm quote for a prediction contract. The research and our
 - **Skeptic review:** firm quote (C1), receipt-only (C2) and disclosed last-look (C4) **failed**; the informed choice "buy now vs priced hold" (C3) **passed conditionally**, narrowed to "a disclosed, fee-priced, maker-escrowed option on test assets". Novelty as a mechanism is not substantiated (Hopper Price Freeze; RFQ on Kalshi/Polymarket/Gemini/Jupiter Z; PsyOptions on Solana). What is distinctive is that the reservation is **provable custody** with no last look.
 - **Protocol review** found a real flaw that I fixed before deploy: paying the maker's own token account let a maker close it to block exercises (a silent renege). Proceeds now go to a pool-owned vault.
 
+- **Second independent review** (code + its own receipt client): no critical issues; the independent receipt check passed every point. Fixed its high/medium findings: resolve now requires close (early resolution would have voided live holds while the maker kept fees), one hold is capped at 100 shares, more maker inventory, faucet global budget, reprice band, rent disclosure, rate-limiter pruning, and a stricter "expired" check in the tx watcher. Upgraded on devnet in place (same program ID). Still open by design: the program is upgradeable by our deploy key (H2) — freeze it or move it to a multisig after judging if you want that guarantee to be unconditional.
+- **A bug the E2E caught:** bundling "release my expired holds" into a buy made the buy fail if someone else had already released that hold. Removed; release is a separate permissionless action (and `npm run release-expired` is a crank anyone can run).
+
 So we shipped: **Buy now (default) + explicitly priced Hold**, with a wallet-free receipt verifier and an Evidence page that says plainly where the baseline wins.
 
 ## Frozen sentences
@@ -24,7 +27,7 @@ So we shipped: **Buy now (default) + explicitly priced Hold**, with a wallet-fre
 | **Blocked / not done** | No "Gemini prediction markets tool" exists in the session → used public endpoints. The reading-list .docx wasn't attached or in Drive → followed paper citations. land-book.com returns 403 to the sandbox → design lead used search + live sites. **Vercel preview is behind Vercel Authentication (SSO)** → I couldn't verify it in a browser; see "Your steps". No real venue integration. |
 
 ## Verification (all ran)
-- Rust unit tests 5/5 · local-validator integration 23/23 (incl. last-lot race, randomized state machine with conservation checks) · browser E2E on devnet (buy now, max-below-ask rejected pre-sign, hold → reprice → exercise at held price, expire → release, refresh mid-tx resumes, wallet rejection, 7/7 receipts verified wallet-less, 390 px mobile, keyboard).
+- Rust unit tests 5/5 · local-validator integration 24/24 (incl. last-lot race, randomized state machine with conservation checks) · browser E2E on devnet (buy now, max-below-ask rejected pre-sign, hold → reprice → exercise at held price, expire → release, refresh mid-tx resumes, wallet rejection, 7/7 receipts verified wallet-less, 390 px mobile, keyboard).
 - Secret scan: no keys in tracked files; no secret values or names in the client bundle.
 
 ## Identifiers

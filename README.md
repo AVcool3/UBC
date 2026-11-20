@@ -57,6 +57,9 @@ The maker can't sell reserved shares to someone else, withdraw them, reprice the
 - **Program upgrade authority** is our deploy key (`BRAtnnAhQ8peQDPkaTtFCYxnNeGqAbBk15zfgZNWFfwf`). A production version would freeze or multisig it.
 - **The demo maker is ours.** "Simulate a reprice" in demo mode is labelled as a simulation; it signs the normal `set_terms` with the maker's key and can't touch existing holds.
 - **Clock:** expiry uses the cluster's `unix_timestamp`, whole seconds; the UI disables exercise in the last ~1.5 s.
+- **Rent:** each hold creates a ~0.0021 SOL account that stays as the on-chain receipt (shown next to the fee).
+- **Resolution only after close:** the admin can't resolve while holds could still be live (fixed after the independent review).
+- **Demo guard rails:** one hold reserves at most 100 shares; the demo faucet has a global budget; the demo "reprice" button keeps the ask within $0.06 of $0.93. Rate limits are per server instance (a speed bump, not a security boundary).
 
 ## Repo layout
 
@@ -65,7 +68,7 @@ contracts/
   programs/held_quote/src/   lib.rs · state.rs (units, fee math, boundary fns + unit tests) · errors.rs · events.rs
                              instructions/{market,pool,trade}.rs
   tests/held_quote.ts        23 local-validator integration tests incl. a randomized state machine vs a JS model
-  scripts/                   seed-market (devnet set-up + example receipts) · set-terms · export-idl · demo-env
+  scripts/                   seed-market (devnet set-up + example receipts) · set-terms · restock · release-expired (permissionless crank) · export-idl · demo-env
 frontend/  (Next.js 15, React 19, Tailwind v4)
   src/components/Ticket.tsx           the order ticket (buy now / hold / exercise / release)
   src/components/HoldCountdown.tsx    React Bits Counter, reduced-motion aware
@@ -74,7 +77,7 @@ frontend/  (Next.js 15, React 19, Tailwind v4)
   src/app/api/reference               read-only Gemini book adapter (one fixed host, cached, labelled)
   src/app/receipt/[sig]               wallet-free receipt page
 econ/        replay harness, results, chart (seeded synthetic + one labelled Gemini snapshot)
-docs/research/   claims ledger · venue map · protocol review · design · skeptic review
+docs/research/   claims ledger · venue map · protocol review · design · skeptic review · second review (code + independent receipt check)
 RUNLOG.md    decisions, identifiers, evidence paths
 ```
 
@@ -111,7 +114,7 @@ Devnet set-up (already done for the IDs above): deploy with `solana program depl
 ## Test results (all ran)
 
 - **Rust unit tests:** 5/5 — fee rounding (10,000 random cases, never under-charges, never > 1 unit over), overflow → error, non-overlapping expiry boundary, terms validation.
-- **Integration (local validator):** 23/23 — atomic buy, price/inventory limits, self-trade, fee math, price frozen across a maker reprice, reserved shares un-withdrawable, non-beneficiary can't exercise, no double exercise, no release after exercise, duplicate nonce rejected, expiry → exercise fails + anyone releases, **two buyers racing for the last share: exactly one wins, loser untouched**, 40-step randomized state machine checked against a model with **conservation of USDC and shares across every account after every step**, resolution blocks trading/exercise, winners redeem $1, losers can't, holds can't outlast market close.
+- **Integration (local validator):** 24/24 — atomic buy, price/inventory limits, self-trade, fee math, price frozen across a maker reprice, reserved shares un-withdrawable, non-beneficiary can't exercise, no double exercise, no release after exercise, duplicate nonce rejected, expiry → exercise fails + anyone releases, **two buyers racing for the last share: exactly one wins, loser untouched**, 40-step randomized state machine checked against a model with **conservation of USDC and shares across every account after every step**, resolution refused before close (it would void live holds), one hold capped at 100 shares, short market: holds can't outlast close → after close trading stops, resolve, release, winners redeem $1, losers can't.
 - **Browser end-to-end on devnet:** demo wallet + faucet, buy now, max-below-ask rejected before signing, hold → simulated reprice → exercise at held price, hold → expire → release, **refresh mid-transaction resumes**, wallet rejection message, 7/7 receipts fully verified from a wallet-less browser, 390 px mobile without overflow, keyboard reaches the primary action.
 
 ## Built during the hackathon

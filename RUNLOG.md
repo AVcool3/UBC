@@ -48,12 +48,14 @@ Compact log so the run can resume after context compaction. Newest entries at th
 - 04:50 hold_rate set to 1250 ($0.00125/share-min) via set-terms (econ break-even 0.001242).
 - 04:55 Pushed `claude/firm-quote`. Vercel preview `ubc-git-claude-firm-quote-avcool3s-projects.vercel.app` exists but is behind Vercel Authentication (SSO 302) → user must disable preview protection. Cannot verify deployed URL from sandbox.
 
+- 05:20 Second review (docs/research/review-2.md): no critical; H1 early resolve → fixed (`ResolveBeforeClose`), H3 demo lockout → `HoldTooLarge` (100/hold) + restock to 857 available + faucet global budget, M1 reprice band ±$0.06, M2 rent disclosed, M3 limiter prunes, L1 expiry needs 5 misses. H2 (upgradeable) disclosed, left to user. Program upgraded in place on devnet. E2E bug fixed: no bundled releases in buys. Tests: 5 unit + 24 integration + full devnet E2E passing.
+
 ## Commands
 - Local tests: start `solana-test-validator --reset`, deploy `target/deploy/held_quote.so`, then `NODE_OPTIONS=--no-experimental-strip-types ANCHOR_PROVIDER_URL=http://127.0.0.1:8899 ANCHOR_WALLET=~/.config/solana/id.json npx ts-mocha -p ./tsconfig.json -t 1000000 --exit tests/held_quote.ts` (Node 22 type-stripping must be off for ts-mocha).
 - Browser E2E: scratchpad e2e-held.js against `next start -p 3001` (NODE_USE_ENV_PROXY=1 for server fetches).
 
 ## Next action
-- Apply independent reviewer's second-pass findings (docs/research/review-2.md), rerun tests, push. Then final report.
+- Done unless the user asks for more. User: disable Vercel preview protection, confirm Preview env vars, pick which product to submit, record video (docs/JUDGE-SCRIPT.md).
 
 ## Evidence paths
 - docs/research/*.md (subagent reports), econ/ (harness, results, chart), contracts/tests, scratchpad screenshots.
