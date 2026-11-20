@@ -17,7 +17,7 @@ Every action ends in a **receipt anyone can verify** against chain state, no wal
 |---|---|
 | **Track** | Consumer Applications · **Chain award:** Best use of Solana |
 | **Program ID (devnet)** | [`32LnKdWnNk93W4C1pD4s3DjdTUAw4aGZZr6tbRMpw8e3`](https://explorer.solana.com/address/32LnKdWnNk93W4C1pD4s3DjdTUAw4aGZZr6tbRMpw8e3?cluster=devnet) |
-| **Market / pool** | [`gnEJ…KzUd`](https://explorer.solana.com/address/gnEJjx6joydxAyRvMGxHfdV26niTpyy46KwU4PvKzUd?cluster=devnet) · pool [`BQEG…vunx`](https://explorer.solana.com/address/BQEGNeDdEnXLnsu97n8DfefFtDsJLDHQJ7NSM2Rtvunx?cluster=devnet) |
+| **Markets (devnet)** | 4 live markets, each its own on-chain market + maker pool, each mirroring a Gemini Predictions contract (display-only): **Fed hike 25 bps** (Economics) · **BTC ≥ $60k on Nov 27** (Crypto) · **Portland beats New York** (Sports) · **Austin high 76–77°F today** (Weather). Defined in [`contracts/markets.json`](contracts/markets.json); pinned in `frontend/src/deployment.json`. |
 | **Try it without a wallet** | Open `/receipt/<signature>` for any example below, or press **"No wallet? Use a demo wallet"** on the trade page. |
 | **Example receipts (real devnet txs)** | [held → bought](https://explorer.solana.com/tx/hDLWb3vMbtnToRBeVA1SHgCKTrDVZuLqPUPC4S5S48Bv3bgXmLJabhHTLTk5TYPZ5U1mPwcWewXB9EFuMo78zSc?cluster=devnet) · [bought now](https://explorer.solana.com/tx/68uWKUeu6HU3U2NWzrUMNJ3Ne9FfASLoS7opQUyni9Dy9mYrEjp3Djy64VetH9gygT77DGFC6qgS8TLpTX4BSuv?cluster=devnet) · [hold expired → released](https://explorer.solana.com/tx/4ocHfkzwKFQEfPBbUzcwKBZGNe8wGxs44KiP3kGqkfK82KtiS9uCaH5SLG42ZuLtfLBxh8P7Edzc1woaMbkfUE6Q?cluster=devnet) |
 
@@ -68,7 +68,8 @@ contracts/
   programs/held_quote/src/   lib.rs · state.rs (units, fee math, boundary fns + unit tests) · errors.rs · events.rs
                              instructions/{market,pool,trade}.rs
   tests/held_quote.ts        23 local-validator integration tests incl. a randomized state machine vs a JS model
-  scripts/                   seed-market (devnet set-up + example receipts) · set-terms · restock · release-expired (permissionless crank) · export-idl · demo-env
+  markets.json               the markets to create (question, close time, Gemini reference)
+  scripts/                   seed-markets (all markets + pools) · seed-market (first market + example receipts) · set-terms · restock · release-expired (permissionless crank) · export-idl · demo-env
 frontend/  (Next.js 15, React 19, Tailwind v4)
   src/components/Ticket.tsx           the order ticket (buy now / hold / exercise / release)
   src/components/HoldCountdown.tsx    React Bits Counter, reduced-motion aware
@@ -113,8 +114,10 @@ Devnet set-up (already done for the IDs above): deploy with `solana program depl
 
 ## Test results (all ran)
 
+- **Frontend unit tests:** 6/6 (`npm test`) — Gemini order-book size walk (fills, multi-level walks, unfillable remainder, bounds).
 - **Rust unit tests:** 5/5 — fee rounding (10,000 random cases, never under-charges, never > 1 unit over), overflow → error, non-overlapping expiry boundary, terms validation.
-- **Integration (local validator):** 24/24 — atomic buy, price/inventory limits, self-trade, fee math, price frozen across a maker reprice, reserved shares un-withdrawable, non-beneficiary can't exercise, no double exercise, no release after exercise, duplicate nonce rejected, expiry → exercise fails + anyone releases, **two buyers racing for the last share: exactly one wins, loser untouched**, 40-step randomized state machine checked against a model with **conservation of USDC and shares across every account after every step**, resolution refused before close (it would void live holds), one hold capped at 100 shares, short market: holds can't outlast close → after close trading stops, resolve, release, winners redeem $1, losers can't.
+- **Integration (local validator):** 25/25 — **markets are isolated** (a hold, pool or vault from one market can't be used with another; nothing moves),  atomic buy, price/inventory limits, self-trade, fee math, price frozen across a maker reprice, reserved shares un-withdrawable, non-beneficiary can't exercise, no double exercise, no release after exercise, duplicate nonce rejected, expiry → exercise fails + anyone releases, **two buyers racing for the last share: exactly one wins, loser untouched**, 40-step randomized state machine checked against a model with **conservation of USDC and shares across every account after every step**, resolution refused before close (it would void live holds), one hold capped at 100 shares, short market: holds can't outlast close → after close trading stops, resolve, release, winners redeem $1, losers can't.
+- **Multi-market browser run on devnet:** 4 market tabs each read their own on-chain price + live Gemini panel, selection survives reload, buy + hold → reprice → exercise on the Portland market, receipt 10/10.
 - **Browser end-to-end on devnet:** demo wallet + faucet, buy now, max-below-ask rejected before signing, hold → simulated reprice → exercise at held price, hold → expire → release, **refresh mid-transaction resumes**, wallet rejection message, 7/7 receipts fully verified from a wallet-less browser, 390 px mobile without overflow, keyboard reaches the primary action.
 
 ## Built during the hackathon
