@@ -10,7 +10,8 @@
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
     "set-terms": "tsx scripts/set-terms.ts",
     "restock": "tsx scripts/restock.ts",
-    "release-expired": "tsx scripts/release-expired.ts"
+    "release-expired": "tsx scripts/release-expired.ts",
+    "seed-markets": "tsx scripts/seed-markets.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "0.32.1",

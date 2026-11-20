@@ -1,0 +1,34 @@
+[
+  {
+    "id": 1,
+    "question": "Will the Fed raise rates by 25 bps at its December 9, 2026 meeting?",
+    "resolution": "FOMC statement on Dec 9, 2026. Devnet test market: resolved by our test admin, not by Gemini.",
+    "closeTime": "2026-12-09T18:00:00Z",
+    "category": "Economics",
+    "reference": { "symbol": "GEMI-FED261211-HIKE25", "event": "FED261211", "label": "Hike 25bps" }
+  },
+  {
+    "id": 2,
+    "question": "Will Bitcoin be at $60,000 or above on November 27, 2026 (5pm ET)?",
+    "resolution": "BTC/USD at 5pm ET on Nov 27, 2026. Devnet test market: resolved by our test admin, not by Gemini.",
+    "closeTime": "2026-11-27T21:00:00Z",
+    "category": "Crypto",
+    "reference": { "symbol": "GEMI-BTC2611272200-HI60000", "event": "BTC2611272200", "label": "$60,000 or above" }
+  },
+  {
+    "id": 3,
+    "question": "Will Portland beat New York (NBA, Nov 21)?",
+    "resolution": "Official NBA final score. Devnet test market: resolved by our test admin, not by Gemini.",
+    "closeTime": "2026-11-22T00:30:00Z",
+    "category": "Sports",
+    "reference": { "symbol": "GEMI-NBA-2611220030-POR-NYK-M-POR", "event": "NBA-2611220030-POR-NYK-M", "label": "Portland" }
+  },
+  {
+    "id": 4,
+    "question": "Will Austin's high temperature today (Nov 20) be 76–77°F?",
+    "resolution": "Official NWS daily high for Austin, Nov 20, 2026. Devnet test market: resolved by our test admin, not by Gemini.",
+    "closeTime": "2026-11-21T04:00:00Z",
+    "category": "Weather",
+    "reference": { "symbol": "GEMI-WXHIGH-AUS-2611210459-76TO77", "event": "WXHIGH-AUS-2611210459", "label": "76°F to 77°F" }
+  }
+]

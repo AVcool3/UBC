@@ -448,6 +448,107 @@ describe("held_quote", () => {
   });
 
   // ---------------------------------------------------------------------------
+  describe("multiple markets are isolated", () => {
+    it("a pool, hold or vault from one market can't be used with another", async () => {
+      // Second market with its own pool and inventory.
+      const other = await newMarket(3600);
+      const p2 = pda([Buffer.from("pool"), other.market.toBuffer(), maker.publicKey.toBuffer()]);
+      await as(maker)
+        .methods.split(new BN(5))
+        .accountsPartial({
+          owner: maker.publicKey,
+          market: other.market,
+          collateralMint: usdc,
+          yesMint: other.yesMint,
+          noMint: other.noMint,
+          vault: other.vault,
+          ownerCollateral: ata(usdc, maker.publicKey),
+          ownerYes: ata(other.yesMint, maker.publicKey),
+          ownerNo: ata(other.noMint, maker.publicKey),
+        })
+        .rpc();
+      await as(maker)
+        .methods.openPool(TERMS)
+        .accountsPartial({ maker: maker.publicKey, market: other.market, pool: p2, yesMint: other.yesMint, collateralMint: usdc, yesVault: ata(other.yesMint, p2), proceedsVault: ata(usdc, p2) })
+        .rpc();
+      await as(maker)
+        .methods.deposit(new BN(5))
+        .accountsPartial({ maker: maker.publicKey, pool: p2, yesMint: other.yesMint, yesVault: ata(other.yesMint, p2), makerYes: ata(other.yesMint, maker.publicKey) })
+        .rpc();
+
+      // A hold on market 1's pool…
+      const h = await hold(buyerA, 7000, 1, 30);
+      const p1Before = await poolState();
+      const p2Before = await program.account.pool.fetch(p2);
+      // …can't be exercised through market 2's pool (the hold's PDA and has_one pool don't match).
+      await expectError(
+        as(buyerA)
+          .methods.exercise()
+          .accountsPartial({
+            buyer: buyerA.publicKey,
+            market: other.market,
+            pool: p2,
+            hold: h,
+            yesMint: other.yesMint,
+            collateralMint: usdc,
+            yesVault: ata(other.yesMint, p2),
+            proceedsVault: ata(usdc, p2),
+            buyerCollateral: ata(usdc, buyerA.publicKey),
+            buyerYes: ata(other.yesMint, buyerA.publicKey),
+          })
+          .rpc(),
+        "Constraint"
+      );
+      // Buying from market 2's pool while naming market 1 fails (pool.market mismatch).
+      await expectError(
+        as(buyerA)
+          .methods.buyNow(new BN(1), new BN(999_999))
+          .accountsPartial({
+            buyer: buyerA.publicKey,
+            market,
+            pool: p2,
+            yesMint,
+            collateralMint: usdc,
+            yesVault: ata(other.yesMint, p2),
+            proceedsVault: ata(usdc, p2),
+            buyerCollateral: ata(usdc, buyerA.publicKey),
+            buyerYes: ata(yesMint, buyerA.publicKey),
+          })
+          .rpc(),
+        "Constraint"
+      );
+      // Paying market 1's pool but pointing at market 2's YES vault fails (has_one yes_vault).
+      await expectError(
+        as(buyerA)
+          .methods.buyNow(new BN(1), new BN(999_999))
+          .accountsPartial({
+            buyer: buyerA.publicKey,
+            market,
+            pool,
+            yesMint,
+            collateralMint: usdc,
+            yesVault: ata(other.yesMint, p2),
+            proceedsVault: proceeds,
+            buyerCollateral: ata(usdc, buyerA.publicKey),
+            buyerYes: ata(yesMint, buyerA.publicKey),
+          })
+          .rpc(),
+        "Constraint"
+      );
+      // Nothing moved in either pool.
+      const p1After = await poolState();
+      const p2After = await program.account.pool.fetch(p2);
+      expect(p1After.reserved.toNumber()).to.equal(p1Before.reserved.toNumber());
+      expect(p1After.available.toNumber()).to.equal(p1Before.available.toNumber());
+      expect(p2After.available.toNumber()).to.equal(p2Before.available.toNumber());
+      expect(await bal(ata(other.yesMint, p2))).to.equal(p2After.available.toNumber() + p2After.reserved.toNumber());
+      // The legitimate path still works afterwards.
+      await exercise(buyerA, h);
+      await assertPoolInvariant();
+    });
+  });
+
+  // ---------------------------------------------------------------------------
   describe("randomized state machine vs model", () => {
     it("40 random operations keep every invariant", async () => {
       // Deterministic PRNG so failures are reproducible.
