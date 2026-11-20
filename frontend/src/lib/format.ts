@@ -39,7 +39,8 @@ export function ago(secs: number): string {
   const s = Math.max(0, Math.round(secs));
   if (s < 60) return `${s}s ago`;
   if (s < 3600) return `${Math.floor(s / 60)}m ago`;
-  return `${Math.floor(s / 3600)}h ago`;
+  if (s < 172_800) return `${Math.floor(s / 3600)}h ago`;
+  return `${Math.floor(s / 86_400)}d ago`;
 }
 
 export const asNumber = toNum;
