@@ -55,7 +55,7 @@ Compact log so the run can resume after context compaction. Newest entries at th
 - Browser E2E: scratchpad e2e-held.js against `next start -p 3001` (NODE_USE_ENV_PROXY=1 for server fetches).
 
 ## Next action
-- Done unless the user asks for more. User: disable Vercel preview protection, confirm Preview env vars, pick which product to submit, record video (docs/JUDGE-SCRIPT.md).
+- Done unless the user asks for more. User: disable Vercel preview protection, confirm Preview env vars, pick which product to submit, record video.
 
 ## Evidence paths
 - docs/research/*.md (subagent reports), econ/ (harness, results, chart), contracts/tests, scratchpad screenshots.
