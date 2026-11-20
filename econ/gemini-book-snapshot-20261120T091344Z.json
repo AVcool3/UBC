@@ -1,0 +1,51 @@
+{
+ "retrieved_at_utc": "2026-11-20T09:13:44Z",
+ "url": "https://api.gemini.com/v1/book/GEMI-FED261211-HIKE25?limit_bids=5&limit_asks=5",
+ "note": "single public read-only GET, no auth; snapshot only, never a time series; Gemini reference is display-only, not executable on our venue",
+ "book": {
+  "bids": [
+   {
+    "price": "0.89",
+    "amount": "449.0",
+    "timestamp": "1795166024"
+   },
+   {
+    "price": "0.86",
+    "amount": "116.27",
+    "timestamp": "1795166024"
+   },
+   {
+    "price": "0.83",
+    "amount": "361.44",
+    "timestamp": "1795166024"
+   },
+   {
+    "price": "0.81",
+    "amount": "246.91",
+    "timestamp": "1795166024"
+   },
+   {
+    "price": "0.76",
+    "amount": "131.57",
+    "timestamp": "1795166024"
+   }
+  ],
+  "asks": [
+   {
+    "price": "0.93",
+    "amount": "25.0",
+    "timestamp": "1795166024"
+   },
+   {
+    "price": "0.94",
+    "amount": "6666.0",
+    "timestamp": "1795166024"
+   },
+   {
+    "price": "0.95",
+    "amount": "120.0",
+    "timestamp": "1795166024"
+   }
+  ]
+ }
+}

@@ -1,0 +1,2638 @@
+{
+ "label": "SEEDED SYNTHETIC paths (logit random walk + jumps, 1 s steps); not venue data",
+ "seed": 20261120,
+ "n_per_cell": 4000,
+ "bootstrap_resamples": 1000,
+ "units": {
+  "prices": "$/share (computed in integer micro-dollars)",
+  "orders": "$/order",
+  "vol": "probability points (pp) per sqrt-minute",
+  "rate": "$/share-minute",
+  "lock": "share-seconds"
+ },
+ "assumptions": {
+  "behaviour": {
+   "d_median": 20.0,
+   "d_sigma": 1.0,
+   "d_cap": 300,
+   "retry_latency": 5,
+   "tolerance_ticks": 0,
+   "p_abandon": 0.15,
+   "q_choices": [
+    5,
+    10,
+    20,
+    40
+   ]
+  },
+  "maker": {
+   "turnover_per_sec": 0.0016666666666666668
+  },
+  "regimes": {
+   "placid": {
+    "name": "placid",
+    "sigma": 0.0008,
+    "jump_rate": 0.0,
+    "jump_sd": 0.0,
+    "spread_ticks": 2,
+    "level_size": 50,
+    "n_levels": 5,
+    "thin": false,
+    "deplete_enter": 0.011111111111111112,
+    "deplete_exit": 0.04,
+    "deplete_size": 0
+   },
+   "normal": {
+    "name": "normal",
+    "sigma": 0.004,
+    "jump_rate": 0.0016666666666666668,
+    "jump_sd": 0.15,
+    "spread_ticks": 2,
+    "level_size": 50,
+    "n_levels": 5,
+    "thin": false,
+    "deplete_enter": 0.011111111111111112,
+    "deplete_exit": 0.04,
+    "deplete_size": 0
+   },
+   "volatile": {
+    "name": "volatile",
+    "sigma": 0.012,
+    "jump_rate": 0.008333333333333333,
+    "jump_sd": 0.3,
+    "spread_ticks": 2,
+    "level_size": 50,
+    "n_levels": 5,
+    "thin": false,
+    "deplete_enter": 0.011111111111111112,
+    "deplete_exit": 0.04,
+    "deplete_size": 0
+   },
+   "thin": {
+    "name": "thin",
+    "sigma": 0.004,
+    "jump_rate": 0.0016666666666666668,
+    "jump_sd": 0.15,
+    "spread_ticks": 4,
+    "level_size": 8,
+    "n_levels": 3,
+    "thin": true,
+    "deplete_enter": 0.011111111111111112,
+    "deplete_exit": 0.04,
+    "deplete_size": 0
+   }
+  },
+  "sol_usd": 150.0,
+  "lamports_per_signature": 5000,
+  "sig_cost_usd": 0.00075,
+  "notes": [
+   "B has identical fills/economics to A (labels only).",
+   "C exercise is rational: buyer skips exercise if a full-size market buy at t0+D is cheaper.",
+   "Expired hold (D>=H) falls back to A's path at t0+D, plus the sunk fee.",
+   "Unfillable residual shares are counted, never priced.",
+   "Maker payout uses q*max(a(t0+D)-a0,0) at top of ladder on exercised holds."
+  ]
+ },
+ "breakeven_normal": {
+  "10": {
+   "option_only_usd_per_share_min": 0.0010384077747453903,
+   "all_in_usd_per_share_min": 0.002150123144511749
+  },
+  "30": {
+   "option_only_usd_per_share_min": 0.0014444518405112162,
+   "all_in_usd_per_share_min": 0.0021801038407774746
+  },
+  "60": {
+   "option_only_usd_per_share_min": 0.0012414298076283033,
+   "all_in_usd_per_share_min": 0.0017713261887328322
+  },
+  "120": {
+   "option_only_usd_per_share_min": 0.0007611662118085602,
+   "all_in_usd_per_share_min": 0.001128710976502696
+  }
+ },
+ "recommended_rate_usd_per_share_min": 0.001242,
+ "rate_used_usd_per_share_min": 0.001242,
+ "regimes": {
+  "placid": {
+   "n_orders": 4000,
+   "n_quoted": 4000,
+   "n_noquote": 0,
+   "n_abandon": 587,
+   "n_replaced": 126,
+   "n_live": 2937,
+   "n_exercised": 2860,
+   "n_expired": 476,
+   "realised_vol_pp_per_sqrt_min": 0.13119323681412767,
+   "A_miss_rate_pp": {
+    "mean": 3.15,
+    "lo": 2.624375,
+    "hi": 3.6999999999999997,
+    "n": 4000
+   },
+   "repl_signed_usd_per_replaced_order": {
+    "mean": 0.12817460317460316,
+    "lo": 0.10595238095238094,
+    "hi": 0.1488095238095238,
+    "n": 126
+   },
+   "repl_adverse_usd_per_replaced_order": {
+    "mean": 0.12817460317460316,
+    "lo": 0.10753968253968255,
+    "hi": 0.1496031746031746,
+    "n": 126
+   },
+   "A_slip_usd_per_order": {
+    "mean": -0.0015375,
+    "lo": -0.003000625,
+    "hi": 7.5e-05,
+    "n": 4000
+   },
+   "C_slip_incl_fee_usd_per_order": {
+    "mean": 0.0186943175,
+    "lo": 0.0173122545,
+    "hi": 0.020104301874999998,
+    "n": 4000
+   },
+   "fee_usd_per_order": {
+    "mean": 0.0229568175,
+    "lo": 0.0224397185625,
+    "hi": 0.0234460490625,
+    "n": 4000
+   },
+   "gross_protection_at_use_usd_per_live_hold": {
+    "mean": 0.005209397344228805,
+    "lo": 0.003932158665304733,
+    "hi": 0.006469186244467143,
+    "n": 2937
+   },
+   "gross_protection_at_expiry_usd_per_needed_order": {
+    "mean": 0.009888661002050981,
+    "lo": 0.008188910049809551,
+    "hi": 0.011690594784646938,
+    "n": 3413
+   },
+   "buyer_adv_C_minus_A_usd_per_order": {
+    "mean": -0.02096438,
+    "lo": -0.02180841025,
+    "hi": -0.019979956562499998,
+    "n": 4000
+   },
+   "buyer_adv_C_minus_A_usd_per_needed_order": {
+    "mean": -0.020516349252856725,
+    "lo": -0.02155029739232347,
+    "hi": -0.019585326765309108,
+    "n": 3413
+   },
+   "maker_fee_usd_per_hold": {
+    "mean": 0.0229568175,
+    "lo": 0.0224413875,
+    "hi": 0.023450823,
+    "n": 4000
+   },
+   "maker_option_payout_usd_per_hold": {
+    "mean": 0.003825,
+    "lo": 0.00295,
+    "hi": 0.0048375,
+    "n": 4000
+   },
+   "maker_opp_cost_usd_per_hold": {
+    "mean": 0.009570916666666667,
+    "lo": 0.009252493229166665,
+    "hi": 0.009924979166666667,
+    "n": 4000
+   },
+   "maker_net_usd_per_hold": {
+    "mean": 0.00936158833333333,
+    "lo": 0.008310432291666668,
+    "hi": 0.010380558687500001,
+    "n": 4000
+   },
+   "inventory_lock_share_secs_per_hold": 574.255,
+   "A_unfillable_residual_shares_per_order": 0.0,
+   "C_unfillable_residual_shares_per_order": 0.0,
+   "network_sigs_per_order": {
+    "A": 0.88475,
+    "C": 1.8615
+   },
+   "H": 60,
+   "breakeven_rate_option_only_usd_per_share_min": 0.00020693852708460132
+  },
+  "normal": {
+   "n_orders": 4000,
+   "n_quoted": 4000,
+   "n_noquote": 0,
+   "n_abandon": 584,
+   "n_replaced": 554,
+   "n_live": 2928,
+   "n_exercised": 2486,
+   "n_expired": 488,
+   "realised_vol_pp_per_sqrt_min": 1.2313231397863444,
+   "A_miss_rate_pp": {
+    "mean": 13.850000000000001,
+    "lo": 12.775,
+    "hi": 14.899999999999999,
+    "n": 4000
+   },
+   "repl_signed_usd_per_replaced_order": {
+    "mean": 0.2345667870036101,
+    "lo": 0.20577166064981947,
+    "hi": 0.26723826714801446,
+    "n": 554
+   },
+   "repl_adverse_usd_per_replaced_order": {
+    "mean": 0.2345667870036101,
+    "lo": 0.2059544223826715,
+    "hi": 0.26888086642599274,
+    "n": 554
+   },
+   "A_slip_usd_per_order": {
+    "mean": -0.0076124999999999995,
+    "lo": -0.0152625,
+    "hi": 0.00012749999999999773,
+    "n": 4000
+   },
+   "C_slip_incl_fee_usd_per_order": {
+    "mean": -0.004001792499999999,
+    "lo": -0.010971747937499998,
+    "hi": 0.0026395192499999998,
+    "n": 4000
+   },
+   "fee_usd_per_order": {
+    "mean": 0.0233232075,
+    "lo": 0.0228046336875,
+    "hi": 0.023849582625,
+    "n": 4000
+   },
+   "gross_protection_at_use_usd_per_live_hold": {
+    "mean": 0.03184767759562841,
+    "lo": 0.027748890027322407,
+    "hi": 0.036680327868852454,
+    "n": 2928
+   },
+   "gross_protection_at_expiry_usd_per_needed_order": {
+    "mean": 0.06604215456674473,
+    "lo": 0.0602751756440281,
+    "hi": 0.07228007903981264,
+    "n": 3416
+   },
+   "buyer_adv_C_minus_A_usd_per_order": {
+    "mean": -0.00428402,
+    "lo": -0.007207617875,
+    "hi": -0.0010565955625000015,
+    "n": 4000
+   },
+   "buyer_adv_C_minus_A_usd_per_needed_order": {
+    "mean": -0.0009996750585480093,
+    "lo": -0.0043609471604215445,
+    "hi": 0.0030811253659250586,
+    "n": 3416
+   },
+   "maker_fee_usd_per_hold": {
+    "mean": 0.0233232075,
+    "lo": 0.022781384999999998,
+    "hi": 0.0238061514375,
+    "n": 4000
+   },
+   "maker_option_payout_usd_per_hold": {
+    "mean": 0.0233125,
+    "lo": 0.0202371875,
+    "hi": 0.026725,
+    "n": 4000
+   },
+   "maker_opp_cost_usd_per_hold": {
+    "mean": 0.009749791666666667,
+    "lo": 0.009431960416666666,
+    "hi": 0.010123483333333332,
+    "n": 4000
+   },
+   "maker_net_usd_per_hold": {
+    "mean": -0.009940084166666667,
+    "lo": -0.013213558416666667,
+    "hi": -0.006769583729166666,
+    "n": 4000
+   },
+   "inventory_lock_share_secs_per_hold": 584.9875,
+   "A_unfillable_residual_shares_per_order": 0.0,
+   "C_unfillable_residual_shares_per_order": 0.0,
+   "network_sigs_per_order": {
+    "A": 0.9925,
+    "C": 1.89025
+   },
+   "H": 60,
+   "breakeven_rate_option_only_usd_per_share_min": 0.0012414298076283033
+  },
+  "volatile": {
+   "n_orders": 4000,
+   "n_quoted": 4000,
+   "n_noquote": 0,
+   "n_abandon": 606,
+   "n_replaced": 1140,
+   "n_live": 2962,
+   "n_exercised": 2046,
+   "n_expired": 432,
+   "realised_vol_pp_per_sqrt_min": 4.966951628298485,
+   "A_miss_rate_pp": {
+    "mean": 28.499999999999996,
+    "lo": 27.1,
+    "hi": 29.849999999999998,
+    "n": 4000
+   },
+   "repl_signed_usd_per_replaced_order": {
+    "mean": 0.48070175438596485,
+    "lo": 0.43274890350877193,
+    "hi": 0.5286118421052631,
+    "n": 1140
+   },
+   "repl_adverse_usd_per_replaced_order": {
+    "mean": 0.49324561403508765,
+    "lo": 0.4505230263157895,
+    "hi": 0.5381655701754386,
+    "n": 1140
+   },
+   "A_slip_usd_per_order": {
+    "mean": -0.011049999999999999,
+    "lo": -0.0327059375,
+    "hi": 0.011139374999999998,
+    "n": 4000
+   },
+   "C_slip_incl_fee_usd_per_order": {
+    "mean": -0.08151099499999999,
+    "lo": -0.1007925834375,
+    "hi": -0.06303054599999999,
+    "n": 4000
+   },
+   "fee_usd_per_order": {
+    "mean": 0.023539004999999998,
+    "lo": 0.023053072499999997,
+    "hi": 0.02405459025,
+    "n": 4000
+   },
+   "gross_protection_at_use_usd_per_live_hold": {
+    "mean": 0.13222484807562457,
+    "lo": 0.11779203241053342,
+    "hi": 0.14709655638082378,
+    "n": 2962
+   },
+   "gross_protection_at_expiry_usd_per_needed_order": {
+    "mean": 0.2927813789039481,
+    "lo": 0.26980738067177373,
+    "hi": 0.31399970536240424,
+    "n": 3394
+   },
+   "buyer_adv_C_minus_A_usd_per_order": {
+    "mean": 0.06988668249999999,
+    "lo": 0.059629181125,
+    "hi": 0.08113850449999999,
+    "n": 4000
+   },
+   "buyer_adv_C_minus_A_usd_per_needed_order": {
+    "mean": 0.08665962581025338,
+    "lo": 0.07356963752209782,
+    "hi": 0.10078693871538007,
+    "n": 3394
+   },
+   "maker_fee_usd_per_hold": {
+    "mean": 0.023539004999999998,
+    "lo": 0.023015579624999997,
+    "hi": 0.024066971437499998,
+    "n": 4000
+   },
+   "maker_option_payout_usd_per_hold": {
+    "mean": 0.0979125,
+    "lo": 0.08743625,
+    "hi": 0.10877624999999999,
+    "n": 4000
+   },
+   "maker_opp_cost_usd_per_hold": {
+    "mean": 0.009537458333333334,
+    "lo": 0.009222115104166666,
+    "hi": 0.009878425000000001,
+    "n": 4000
+   },
+   "maker_net_usd_per_hold": {
+    "mean": -0.08410557833333333,
+    "lo": -0.09522744647916666,
+    "hi": -0.072998107625,
+    "n": 4000
+   },
+   "inventory_lock_share_secs_per_hold": 572.2475,
+   "A_unfillable_residual_shares_per_order": 0.0,
+   "C_unfillable_residual_shares_per_order": 0.0,
+   "network_sigs_per_order": {
+    "A": 1.1335,
+    "C": 1.89925
+   },
+   "H": 60,
+   "breakeven_rate_option_only_usd_per_share_min": 0.0051662049861495845
+  },
+  "thin": {
+   "n_orders": 4000,
+   "n_quoted": 3101,
+   "n_noquote": 899,
+   "n_abandon": 457,
+   "n_replaced": 756,
+   "n_live": 2277,
+   "n_exercised": 1980,
+   "n_expired": 367,
+   "realised_vol_pp_per_sqrt_min": 1.2514904882747575,
+   "A_miss_rate_pp": {
+    "mean": 24.37923250564334,
+    "lo": 22.95952918413415,
+    "hi": 25.89567881328604,
+    "n": 3101
+   },
+   "repl_signed_usd_per_replaced_order": {
+    "mean": 0.08208994708994709,
+    "lo": 0.07021064814814816,
+    "hi": 0.09457936507936507,
+    "n": 756
+   },
+   "repl_adverse_usd_per_replaced_order": {
+    "mean": 0.08771164021164021,
+    "lo": 0.07636177248677248,
+    "hi": 0.10004034391534392,
+    "n": 756
+   },
+   "A_slip_usd_per_order": {
+    "mean": -0.004040632054176072,
+    "lo": -0.008897210577233151,
+    "hi": 0.000786278619800062,
+    "n": 3101
+   },
+   "C_slip_incl_fee_usd_per_order": {
+    "mean": 0.0007904321186713963,
+    "lo": -0.0032483815865849723,
+    "hi": 0.00485842287971622,
+    "n": 3101
+   },
+   "fee_usd_per_order": {
+    "mean": 0.018529871009351818,
+    "lo": 0.018204211480167685,
+    "hi": 0.01885030380522412,
+    "n": 3101
+   },
+   "gross_protection_at_use_usd_per_live_hold": {
+    "mean": 0.02784804567413263,
+    "lo": 0.023864404918752743,
+    "hi": 0.031642841458058846,
+    "n": 2277
+   },
+   "gross_protection_at_expiry_usd_per_needed_order": {
+    "mean": 0.05625945537065053,
+    "lo": 0.05055436838124054,
+    "hi": 0.0626393721633888,
+    "n": 2644
+   },
+   "buyer_adv_C_minus_A_usd_per_order": {
+    "mean": -0.00543981941309255,
+    "lo": -0.007697292970009675,
+    "hi": -0.0028644958400515963,
+    "n": 3101
+   },
+   "buyer_adv_C_minus_A_usd_per_needed_order": {
+    "mean": -0.0031567012102874433,
+    "lo": -0.006003024073373676,
+    "hi": -8.530338502269346e-05,
+    "n": 2644
+   },
+   "maker_fee_usd_per_hold": {
+    "mean": 0.018529871009351818,
+    "lo": 0.018201037391164143,
+    "hi": 0.018851164914543694,
+    "n": 3101
+   },
+   "maker_option_payout_usd_per_hold": {
+    "mean": 0.020448242502418574,
+    "lo": 0.017723234440503062,
+    "hi": 0.0233932602386327,
+    "n": 3101
+   },
+   "maker_opp_cost_usd_per_hold": {
+    "mean": 0.015550822315382134,
+    "lo": 0.015022968666021711,
+    "hi": 0.01604738471460819,
+    "n": 3101
+   },
+   "maker_net_usd_per_hold": {
+    "mean": -0.017668484359883906,
+    "lo": -0.020740470939481892,
+    "hi": -0.014785271659679675,
+    "n": 3101
+   },
+   "inventory_lock_share_secs_per_hold": 466.52466946146404,
+   "A_unfillable_residual_shares_per_order": 1.617865204772654,
+   "C_unfillable_residual_shares_per_order": 0.3876168977749113,
+   "network_sigs_per_order": {
+    "A": 1.0964205095130604,
+    "C": 1.90809416317317
+   },
+   "H": 60,
+   "breakeven_rate_option_only_usd_per_share_min": 0.0013705825137793148
+  }
+ },
+ "sweep_H": {
+  "H_values": [
+   10,
+   30,
+   60,
+   120
+  ],
+  "by_regime": {
+   "placid": [
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 587,
+     "n_replaced": 113,
+     "n_live": 803,
+     "n_exercised": 794,
+     "n_expired": 2610,
+     "realised_vol_pp_per_sqrt_min": 0.13129695513346987,
+     "A_miss_rate_pp": {
+      "mean": 2.825,
+      "lo": 2.349375,
+      "hi": 3.35,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.1482300884955752,
+      "lo": 0.12212389380530973,
+      "hi": 0.17300884955752213,
+      "n": 113
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.1482300884955752,
+      "lo": 0.12345132743362831,
+      "hi": 0.17390486725663715,
+      "n": 113
+     },
+     "A_slip_usd_per_order": {
+      "mean": 7.5e-05,
+      "lo": -0.0013378125,
+      "hi": 0.0015249999999999999,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": 0.00358863625,
+      "lo": 0.002137855125,
+      "hi": 0.005065702374999999,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.00382613625,
+      "lo": 0.00374124684375,
+      "hi": 0.0039100100625,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.0023661270236612704,
+      "lo": 0.00087173100871731,
+      "hi": 0.004297945205479451,
+      "n": 803
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.003559917960738353,
+      "lo": 0.0025194110753003224,
+      "hi": 0.004629724582478757,
+      "n": 3413
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.0042611987499999995,
+      "lo": -0.0045111615625,
+      "hi": -0.0039706303125,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.004210972751245239,
+      "lo": -0.0044955186785818925,
+      "hi": -0.0038827765162613537,
+      "n": 3413
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.00382613625,
+      "lo": 0.0037441125,
+      "hi": 0.0039076877812499996,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.000475,
+      "lo": 0.0001875,
+      "hi": 0.0008749999999999999,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.0028275624999999998,
+      "lo": 0.002765205208333334,
+      "hi": 0.0028955651041666663,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -7.586375000000015e-05,
+      "lo": -0.0004085586250000001,
+      "hi": 0.00019415693749999987,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 169.65375,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 0.8815,
+      "C": 1.87825
+     },
+     "H": 10,
+     "breakeven_rate_option_only_usd_per_share_min": 0.00015418949076891867
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 587,
+     "n_replaced": 112,
+     "n_live": 2206,
+     "n_exercised": 2158,
+     "n_expired": 1207,
+     "realised_vol_pp_per_sqrt_min": 0.13125613448091916,
+     "A_miss_rate_pp": {
+      "mean": 2.8000000000000003,
+      "lo": 2.325,
+      "hi": 3.35,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.13749999999999998,
+      "lo": 0.11561383928571428,
+      "hi": 0.1611607142857143,
+      "n": 112
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.13749999999999998,
+      "lo": 0.11473214285714285,
+      "hi": 0.16383928571428572,
+      "n": 112
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0016875,
+      "lo": -0.0032875,
+      "hi": -9.968750000000028e-05,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": 0.00837840875,
+      "lo": 0.006834823124999999,
+      "hi": 0.009964975093749998,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.01147840875,
+      "lo": 0.011222906062499998,
+      "hi": 0.011716756312500002,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.003467815049864007,
+      "lo": 0.0024014052583862192,
+      "hi": 0.004692316409791478,
+      "n": 2206
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.005303252270729563,
+      "lo": 0.004175212423088191,
+      "hi": 0.006548857310284207,
+      "n": 3413
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.01080597125,
+      "lo": -0.011384559812499999,
+      "hi": -0.010253852249999999,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.010573146791678876,
+      "lo": -0.011180332222384999,
+      "hi": -0.0099188944110753,
+      "n": 3413
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.01147840875,
+      "lo": 0.011221372968749999,
+      "hi": 0.0117167175,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0019125,
+      "lo": 0.0012875,
+      "hi": 0.0026378124999999995,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.006458895833333333,
+      "lo": 0.006274278125,
+      "hi": 0.006640748958333333,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": 0.002770637916666667,
+      "lo": 0.002108844822916666,
+      "hi": 0.003402535229166666,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 387.53375,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 0.88125,
+      "C": 1.868
+     },
+     "H": 30,
+     "breakeven_rate_option_only_usd_per_share_min": 0.00020693852708460132
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 587,
+     "n_replaced": 126,
+     "n_live": 2937,
+     "n_exercised": 2860,
+     "n_expired": 476,
+     "realised_vol_pp_per_sqrt_min": 0.13119323681412767,
+     "A_miss_rate_pp": {
+      "mean": 3.15,
+      "lo": 2.624375,
+      "hi": 3.6999999999999997,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.12817460317460316,
+      "lo": 0.10595238095238094,
+      "hi": 0.1488095238095238,
+      "n": 126
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.12817460317460316,
+      "lo": 0.10753968253968255,
+      "hi": 0.1496031746031746,
+      "n": 126
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0015375,
+      "lo": -0.003000625,
+      "hi": 7.5e-05,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": 0.0186943175,
+      "lo": 0.0173122545,
+      "hi": 0.020104301874999998,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.0229568175,
+      "lo": 0.0224397185625,
+      "hi": 0.0234460490625,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.005209397344228805,
+      "lo": 0.003932158665304733,
+      "hi": 0.006469186244467143,
+      "n": 2937
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.009888661002050981,
+      "lo": 0.008188910049809551,
+      "hi": 0.011690594784646938,
+      "n": 3413
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.02096438,
+      "lo": -0.02180841025,
+      "hi": -0.019979956562499998,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.020516349252856725,
+      "lo": -0.02155029739232347,
+      "hi": -0.019585326765309108,
+      "n": 3413
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.0229568175,
+      "lo": 0.0224413875,
+      "hi": 0.023450823,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.003825,
+      "lo": 0.00295,
+      "hi": 0.0048375,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.009570916666666667,
+      "lo": 0.009252493229166665,
+      "hi": 0.009924979166666667,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": 0.00936158833333333,
+      "lo": 0.008310432291666668,
+      "hi": 0.010380558687500001,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 574.255,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 0.88475,
+      "C": 1.8615
+     },
+     "H": 60,
+     "breakeven_rate_option_only_usd_per_share_min": 0.00020693852708460132
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 587,
+     "n_replaced": 140,
+     "n_live": 3310,
+     "n_exercised": 3205,
+     "n_expired": 103,
+     "realised_vol_pp_per_sqrt_min": 0.1310581217540048,
+     "A_miss_rate_pp": {
+      "mean": 3.5000000000000004,
+      "lo": 2.9499999999999997,
+      "hi": 4.075,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.14535714285714285,
+      "lo": 0.1232142857142857,
+      "hi": 0.16715178571428568,
+      "n": 140
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.14535714285714285,
+      "lo": 0.12320535714285714,
+      "hi": 0.1678660714285714,
+      "n": 140
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0007,
+      "lo": -0.0024124999999999997,
+      "hi": 0.00095,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": 0.040301135,
+      "lo": 0.03877981949999999,
+      "hi": 0.041825378375,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.045913635,
+      "lo": 0.044833017375,
+      "hi": 0.046941467625,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.00741691842900302,
+      "lo": 0.005936178247734138,
+      "hi": 0.009018126888217522,
+      "n": 3310
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.013536478171696455,
+      "lo": 0.011544096103135072,
+      "hi": 0.01538272780544975,
+      "n": 3413
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.041726385,
+      "lo": -0.043144260875,
+      "hi": -0.04012783675,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.040924509229416935,
+      "lo": -0.04259052248754761,
+      "hi": -0.03931841539701142,
+      "n": 3413
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.045913635,
+      "lo": 0.044910487124999995,
+      "hi": 0.04687634025,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0061375,
+      "lo": 0.0048874999999999995,
+      "hi": 0.007424999999999999,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.013368541666666666,
+      "lo": 0.012823203125000002,
+      "hi": 0.013922845833333334,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": 0.02627821833333333,
+      "lo": 0.024768517666666663,
+      "hi": 0.027689960562499998,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 802.1125,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 0.88825,
+      "C": 1.85525
+     },
+     "H": 120,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0001660242104551295
+    }
+   ],
+   "normal": [
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 584,
+     "n_replaced": 571,
+     "n_live": 797,
+     "n_exercised": 738,
+     "n_expired": 2619,
+     "realised_vol_pp_per_sqrt_min": 1.1682601659059888,
+     "A_miss_rate_pp": {
+      "mean": 14.274999999999999,
+      "lo": 13.224374999999998,
+      "hi": 15.375,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.23091068301225917,
+      "lo": 0.20419658493870402,
+      "hi": 0.2590280210157618,
+      "n": 571
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.23161120840630472,
+      "lo": 0.20455341506129596,
+      "hi": 0.26000437828371276,
+      "n": 571
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0029124999999999997,
+      "lo": -0.0093528125,
+      "hi": 0.003412812499999999,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.0015252987499999998,
+      "lo": -0.007776471562500001,
+      "hi": 0.004940411093749998,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.0038872012499999997,
+      "lo": 0.0037984305937499995,
+      "hi": 0.0039746652187499995,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.01631116687578419,
+      "lo": 0.011856963613550814,
+      "hi": 0.021329987452948555,
+      "n": 797
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.024121779859484774,
+      "lo": 0.021091554449648713,
+      "hi": 0.02748902224824356,
+      "n": 3416
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.00212407625,
+      "lo": -0.002982018125,
+      "hi": -0.00112769978125,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.0017109016393442623,
+      "lo": -0.0027088437865925054,
+      "hi": -0.0006159559792154567,
+      "n": 3416
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.0038872012499999997,
+      "lo": 0.00380229890625,
+      "hi": 0.0039762306562499995,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.00325,
+      "lo": 0.0023374999999999997,
+      "hi": 0.0043003124999999994,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.002878875,
+      "lo": 0.0028110942708333337,
+      "hi": 0.002942293229166667,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.0028422362499999996,
+      "lo": -0.003835413760416666,
+      "hi": -0.0020060883958333336,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 172.7325,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 0.99675,
+      "C": 1.97925
+     },
+     "H": 10,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0010384077747453903
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 584,
+     "n_replaced": 547,
+     "n_live": 2237,
+     "n_exercised": 1958,
+     "n_expired": 1179,
+     "realised_vol_pp_per_sqrt_min": 1.2454883952536582,
+     "A_miss_rate_pp": {
+      "mean": 13.675,
+      "lo": 12.55,
+      "hi": 14.75,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.2106032906764168,
+      "lo": 0.1904798903107861,
+      "hi": 0.23437157221206578,
+      "n": 547
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.21078610603290676,
+      "lo": 0.189577239488117,
+      "hi": 0.23601691042047532,
+      "n": 547
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0096875,
+      "lo": -0.0152634375,
+      "hi": -0.004084687500000002,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.00931339625,
+      "lo": -0.014711582593750001,
+      "hi": -0.004001189000000001,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.01166160375,
+      "lo": 0.01140542184375,
+      "hi": 0.01193639625,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.024251229324988823,
+      "lo": 0.020339181940098348,
+      "hi": 0.02860974519445686,
+      "n": 2237
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.039680913348946134,
+      "lo": 0.035404347189695554,
+      "hi": 0.04370608899297424,
+      "n": 3416
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.0010740412499999998,
+      "lo": -0.00301906521875,
+      "hi": 0.0011230496249999998,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": 0.0008148214285714285,
+      "lo": -0.0015639109338407493,
+      "hi": 0.003476245023419203,
+      "n": 3416
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.01166160375,
+      "lo": 0.01141551309375,
+      "hi": 0.01193173875,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0135625,
+      "lo": 0.011237187499999999,
+      "hi": 0.015975625,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.00657675,
+      "lo": 0.0064122640625,
+      "hi": 0.006766980729166665,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.00880820875,
+      "lo": -0.011094541947916666,
+      "hi": -0.006721302375,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 394.605,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 0.99075,
+      "C": 1.924
+     },
+     "H": 30,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0014444518405112162
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 584,
+     "n_replaced": 554,
+     "n_live": 2928,
+     "n_exercised": 2486,
+     "n_expired": 488,
+     "realised_vol_pp_per_sqrt_min": 1.2313231397863444,
+     "A_miss_rate_pp": {
+      "mean": 13.850000000000001,
+      "lo": 12.775,
+      "hi": 14.899999999999999,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.2345667870036101,
+      "lo": 0.20577166064981947,
+      "hi": 0.26723826714801446,
+      "n": 554
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.2345667870036101,
+      "lo": 0.2059544223826715,
+      "hi": 0.26888086642599274,
+      "n": 554
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0076124999999999995,
+      "lo": -0.0152625,
+      "hi": 0.00012749999999999773,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.004001792499999999,
+      "lo": -0.010971747937499998,
+      "hi": 0.0026395192499999998,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.0233232075,
+      "lo": 0.0228046336875,
+      "hi": 0.023849582625,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.03184767759562841,
+      "lo": 0.027748890027322407,
+      "hi": 0.036680327868852454,
+      "n": 2928
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.06604215456674473,
+      "lo": 0.0602751756440281,
+      "hi": 0.07228007903981264,
+      "n": 3416
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.00428402,
+      "lo": -0.007207617875,
+      "hi": -0.0010565955625000015,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.0009996750585480093,
+      "lo": -0.0043609471604215445,
+      "hi": 0.0030811253659250586,
+      "n": 3416
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.0233232075,
+      "lo": 0.022781384999999998,
+      "hi": 0.0238061514375,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0233125,
+      "lo": 0.0202371875,
+      "hi": 0.026725,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.009749791666666667,
+      "lo": 0.009431960416666666,
+      "hi": 0.010123483333333332,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.009940084166666667,
+      "lo": -0.013213558416666667,
+      "hi": -0.006769583729166666,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 584.9875,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 0.9925,
+      "C": 1.89025
+     },
+     "H": 60,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0012414298076283033
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 584,
+     "n_replaced": 528,
+     "n_live": 3292,
+     "n_exercised": 2749,
+     "n_expired": 124,
+     "realised_vol_pp_per_sqrt_min": 1.1551183615956597,
+     "A_miss_rate_pp": {
+      "mean": 13.200000000000001,
+      "lo": 12.174999999999999,
+      "hi": 14.224999999999998,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.2402462121212121,
+      "lo": 0.208984375,
+      "hi": 0.2793631628787879,
+      "n": 528
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.24100378787878787,
+      "lo": 0.20861505681818182,
+      "hi": 0.27785037878787877,
+      "n": 528
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.007699999999999999,
+      "lo": -0.015575312499999999,
+      "hi": -0.0005859375000000014,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": 0.014146415,
+      "lo": 0.007586659625,
+      "hi": 0.02078626925,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.046646415,
+      "lo": 0.045574957124999996,
+      "hi": 0.047649485250000005,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.03473572296476306,
+      "lo": 0.030589307411907653,
+      "hi": 0.03912629100850546,
+      "n": 3292
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.09536007025761123,
+      "lo": 0.08701514929742389,
+      "hi": 0.10365961651053864,
+      "n": 3416
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.022504915,
+      "lo": -0.026032055812499996,
+      "hi": -0.0190058215,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.018447096018735364,
+      "lo": -0.02239895930913349,
+      "hi": -0.014308953527517564,
+      "n": 3416
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.046646415,
+      "lo": 0.045665157375,
+      "hi": 0.047742557625,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0285875,
+      "lo": 0.025024374999999998,
+      "hi": 0.0324125,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.0136713125,
+      "lo": 0.013030995833333331,
+      "hi": 0.014282779166666669,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": 0.0042548525,
+      "lo": 0.0006473639791666659,
+      "hi": 0.007586549729166664,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 820.27875,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 0.986,
+      "C": 1.864
+     },
+     "H": 120,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0007611662118085602
+    }
+   ],
+   "volatile": [
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 606,
+     "n_replaced": 1111,
+     "n_live": 780,
+     "n_exercised": 605,
+     "n_expired": 2614,
+     "realised_vol_pp_per_sqrt_min": 4.769293349849608,
+     "A_miss_rate_pp": {
+      "mean": 27.775,
+      "lo": 26.325,
+      "hi": 29.125625,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.48618361836183616,
+      "lo": 0.4435103510351035,
+      "hi": 0.5325663816381638,
+      "n": 1111
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.5002250225022502,
+      "lo": 0.4534428442844284,
+      "hi": 0.5513501350135014,
+      "n": 1111
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.007875,
+      "lo": -0.0305625,
+      "hi": 0.013356562499999993,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.0150643325,
+      "lo": -0.03717343253125,
+      "hi": 0.006889730499999998,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.0039231675,
+      "lo": 0.0038362080937499998,
+      "hi": 0.00401297315625,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.0671153846153846,
+      "lo": 0.051342948717948714,
+      "hi": 0.08603205128205128,
+      "n": 780
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.08834708308780201,
+      "lo": 0.0788144519740719,
+      "hi": 0.09872200942840306,
+      "n": 3394
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": 0.00647252,
+      "lo": 0.00296840340625,
+      "hi": 0.0104488976875,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": 0.008455559811431939,
+      "lo": 0.004261663818503241,
+      "hi": 0.012834976834119032,
+      "n": 3394
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.0039231675,
+      "lo": 0.0038401087499999997,
+      "hi": 0.0040096029375000005,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0130875,
+      "lo": 0.009760625,
+      "hi": 0.0166503125,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.0028808124999999997,
+      "lo": 0.0028134744791666667,
+      "hi": 0.0029483708333333334,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.012648895,
+      "lo": -0.016497155947916668,
+      "hi": -0.009360304854166666,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 172.84875,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 1.12625,
+      "C": 2.082
+     },
+     "H": 10,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0041432528690146415
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 606,
+     "n_replaced": 1083,
+     "n_live": 2261,
+     "n_exercised": 1624,
+     "n_expired": 1133,
+     "realised_vol_pp_per_sqrt_min": 4.812812653324388,
+     "A_miss_rate_pp": {
+      "mean": 27.075,
+      "lo": 25.650000000000002,
+      "hi": 28.375625,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.46763619575253923,
+      "lo": 0.4216920590951062,
+      "hi": 0.5159360572483841,
+      "n": 1083
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.483056325023084,
+      "lo": 0.43859533702677744,
+      "hi": 0.5309903047091412,
+      "n": 1083
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0203625,
+      "lo": -0.04207375,
+      "hi": 0.0012174999999999955,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.058692997499999996,
+      "lo": -0.08013307996874999,
+      "hi": -0.037832108,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.011769502499999999,
+      "lo": 0.01151720184375,
+      "hi": 0.01200781125,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.09542237947810703,
+      "lo": 0.08384785493144627,
+      "hi": 0.1081827731092437,
+      "n": 2261
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.17441072480848557,
+      "lo": 0.1587919858573954,
+      "hi": 0.1890008102533883,
+      "n": 3394
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": 0.03769881,
+      "lo": 0.0296858661875,
+      "hi": 0.04611410234375,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": 0.04664422804949911,
+      "lo": 0.0374153195713023,
+      "hi": 0.05620557844725987,
+      "n": 3394
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.011769502499999999,
+      "lo": 0.01150555809375,
+      "hi": 0.012047497031249998,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0539375,
+      "lo": 0.046861875,
+      "hi": 0.0607628125,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.006494916666666666,
+      "lo": 0.006317131770833333,
+      "hi": 0.006677574479166665,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.04898897666666667,
+      "lo": -0.05615980292708333,
+      "hi": -0.04251040836458333,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 389.695,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 1.11925,
+      "C": 1.9615
+     },
+     "H": 30,
+     "breakeven_rate_option_only_usd_per_share_min": 0.005691861232027437
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 606,
+     "n_replaced": 1140,
+     "n_live": 2962,
+     "n_exercised": 2046,
+     "n_expired": 432,
+     "realised_vol_pp_per_sqrt_min": 4.966951628298485,
+     "A_miss_rate_pp": {
+      "mean": 28.499999999999996,
+      "lo": 27.1,
+      "hi": 29.849999999999998,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.48070175438596485,
+      "lo": 0.43274890350877193,
+      "hi": 0.5286118421052631,
+      "n": 1140
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.49324561403508765,
+      "lo": 0.4505230263157895,
+      "hi": 0.5381655701754386,
+      "n": 1140
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.011049999999999999,
+      "lo": -0.0327059375,
+      "hi": 0.011139374999999998,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.08151099499999999,
+      "lo": -0.1007925834375,
+      "hi": -0.06303054599999999,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.023539004999999998,
+      "lo": 0.023053072499999997,
+      "hi": 0.02405459025,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.13222484807562457,
+      "lo": 0.11779203241053342,
+      "hi": 0.14709655638082378,
+      "n": 2962
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.2927813789039481,
+      "lo": 0.26980738067177373,
+      "hi": 0.31399970536240424,
+      "n": 3394
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": 0.06988668249999999,
+      "lo": 0.059629181125,
+      "hi": 0.08113850449999999,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": 0.08665962581025338,
+      "lo": 0.07356963752209782,
+      "hi": 0.10078693871538007,
+      "n": 3394
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.023539004999999998,
+      "lo": 0.023015579624999997,
+      "hi": 0.024066971437499998,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0979125,
+      "lo": 0.08743625,
+      "hi": 0.10877624999999999,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.009537458333333334,
+      "lo": 0.009222115104166666,
+      "hi": 0.009878425000000001,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.08410557833333333,
+      "lo": -0.09522744647916666,
+      "hi": -0.072998107625,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 572.2475,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 1.1335,
+      "C": 1.89925
+     },
+     "H": 60,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0051662049861495845
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 4000,
+     "n_noquote": 0,
+     "n_abandon": 606,
+     "n_replaced": 1186,
+     "n_live": 3274,
+     "n_exercised": 2206,
+     "n_expired": 120,
+     "realised_vol_pp_per_sqrt_min": 4.796126900098105,
+     "A_miss_rate_pp": {
+      "mean": 29.65,
+      "lo": 28.249999999999996,
+      "hi": 31.025000000000002,
+      "n": 4000
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.5096121416526138,
+      "lo": 0.45918107082630694,
+      "hi": 0.5588680438448567,
+      "n": 1186
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.520193929173693,
+      "lo": 0.468929173693086,
+      "hi": 0.5727466273187183,
+      "n": 1186
+     },
+     "A_slip_usd_per_order": {
+      "mean": 0.009349999999999999,
+      "lo": -0.0123659375,
+      "hi": 0.03283124999999999,
+      "n": 4000
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.07947199,
+      "lo": -0.0968771415,
+      "hi": -0.063912045125,
+      "n": 4000
+     },
+     "fee_usd_per_order": {
+      "mean": 0.047078009999999997,
+      "lo": 0.046027510875,
+      "hi": 0.048025112625,
+      "n": 4000
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.17445021380574222,
+      "lo": 0.15654856444715942,
+      "hi": 0.19380154245571166,
+      "n": 3274
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.44932233352975837,
+      "lo": 0.41912824101355334,
+      "hi": 0.4815000736593989,
+      "n": 3394
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": 0.088283865,
+      "lo": 0.07389489887499999,
+      "hi": 0.10302542518749999,
+      "n": 4000
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": 0.11250236888626988,
+      "lo": 0.0951935906747201,
+      "hi": 0.1329305136269888,
+      "n": 3394
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.047078009999999997,
+      "lo": 0.04598505,
+      "hi": 0.048161732624999995,
+      "n": 4000
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.14278749999999998,
+      "lo": 0.1280746875,
+      "hi": 0.1587575,
+      "n": 4000
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.013402083333333332,
+      "lo": 0.012859219270833335,
+      "hi": 0.013969111458333332,
+      "n": 4000
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.10924769833333334,
+      "lo": -0.12483305710416667,
+      "hi": -0.09460300170833333,
+      "n": 4000
+     },
+     "inventory_lock_share_secs_per_hold": 804.125,
+     "A_unfillable_residual_shares_per_order": 0.0,
+     "C_unfillable_residual_shares_per_order": 0.0,
+     "network_sigs_per_order": {
+      "A": 1.145,
+      "C": 1.8625
+     },
+     "H": 120,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0037669832475926658
+    }
+   ],
+   "thin": [
+    {
+     "n_orders": 4000,
+     "n_quoted": 3126,
+     "n_noquote": 874,
+     "n_abandon": 450,
+     "n_replaced": 748,
+     "n_live": 610,
+     "n_exercised": 569,
+     "n_expired": 2066,
+     "realised_vol_pp_per_sqrt_min": 1.163828847904218,
+     "A_miss_rate_pp": {
+      "mean": 23.928342930262318,
+      "lo": 22.45601407549584,
+      "hi": 25.529430582213685,
+      "n": 3126
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.08724598930481282,
+      "lo": 0.07632252673796791,
+      "hi": 0.09898429144385026,
+      "n": 748
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.08882352941176469,
+      "lo": 0.07832553475935829,
+      "hi": 0.10008288770053475,
+      "n": 748
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0041138835572616765,
+      "lo": -0.0089457773512476,
+      "hi": 0.0004869641714651305,
+      "n": 3126
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.00356183877159309,
+      "lo": -0.008031852287268073,
+      "hi": 0.0011637857645553416,
+      "n": 3126
+     },
+     "fee_usd_per_order": {
+      "mean": 0.0030696391554702494,
+      "lo": 0.0030167237044145872,
+      "hi": 0.0031244103886756236,
+      "n": 3126
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.01619672131147541,
+      "lo": 0.009867622950819674,
+      "hi": 0.02368893442622951,
+      "n": 610
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.019402092675635276,
+      "lo": 0.01630353139013453,
+      "hi": 0.02244076980568012,
+      "n": 2676
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.0012833307741522712,
+      "lo": -0.0024138112603966726,
+      "hi": 0.00018486032469609717,
+      "n": 3126
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.000869053437967115,
+      "lo": -0.0022168581184603886,
+      "hi": 0.0007011655269058293,
+      "n": 2676
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.0030696391554702494,
+      "lo": 0.003011355014395393,
+      "hi": 0.0031241686900191938,
+      "n": 3126
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.0031605886116442736,
+      "lo": 0.0019640914907229686,
+      "hi": 0.004529750479846449,
+      "n": 3126
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.0045444764342077205,
+      "lo": 0.004451441938579654,
+      "hi": 0.0046334474301556825,
+      "n": 3126
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.00523907272339518,
+      "lo": -0.006783444281829814,
+      "hi": -0.0039980672611431,
+      "n": 3126
+     },
+     "inventory_lock_share_secs_per_hold": 136.3342930262316,
+     "A_unfillable_residual_shares_per_order": 1.5524632117722328,
+     "C_unfillable_residual_shares_per_order": 1.4213051823416507,
+     "network_sigs_per_order": {
+      "A": 1.0953294945617402,
+      "C": 2.070377479206654
+     },
+     "H": 10,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0012787988609888688
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 3154,
+     "n_noquote": 846,
+     "n_abandon": 473,
+     "n_replaced": 776,
+     "n_live": 1725,
+     "n_exercised": 1537,
+     "n_expired": 956,
+     "realised_vol_pp_per_sqrt_min": 1.162655003887857,
+     "A_miss_rate_pp": {
+      "mean": 24.603677869372227,
+      "lo": 23.17691819911224,
+      "hi": 26.062143310082437,
+      "n": 3154
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.08413659793814433,
+      "lo": 0.07190528350515464,
+      "hi": 0.09549259020618557,
+      "n": 776
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.08743556701030929,
+      "lo": 0.07662371134020618,
+      "hi": 0.09946327319587626,
+      "n": 776
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.0029486366518706405,
+      "lo": -0.007958623969562461,
+      "hi": 0.001867786937222574,
+      "n": 3154
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": -0.001125300570703868,
+      "lo": -0.005377113094483196,
+      "hi": 0.003580208853836396,
+      "n": 3154
+     },
+     "fee_usd_per_order": {
+      "mean": 0.009128345592897907,
+      "lo": 0.008948173882371591,
+      "hi": 0.009308719118579582,
+      "n": 3154
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.020608695652173912,
+      "lo": 0.01751260869565217,
+      "hi": 0.02412231884057971,
+      "n": 1725
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.03458784035807534,
+      "lo": 0.03087970906378217,
+      "hi": 0.038512495337560605,
+      "n": 2681
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.00248297463538364,
+      "lo": -0.004022181444197844,
+      "hi": -0.0010082880865567537,
+      "n": 3154
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.0011962614696008952,
+      "lo": -0.0029377595020514736,
+      "hi": 0.0005988321521820201,
+      "n": 2681
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.009128345592897907,
+      "lo": 0.00896903467818643,
+      "hi": 0.009283890932149652,
+      "n": 3154
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.011271401395053898,
+      "lo": 0.009494927076727964,
+      "hi": 0.013269023462270133,
+      "n": 3154
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.010318981187909533,
+      "lo": 0.010072063517226802,
+      "hi": 0.010569984675544283,
+      "n": 3154
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.012801843584865781,
+      "lo": -0.01473840679031917,
+      "hi": -0.011053554341048405,
+      "n": 3154
+     },
+     "inventory_lock_share_secs_per_hold": 309.569435637286,
+     "A_unfillable_residual_shares_per_order": 1.6255548509828788,
+     "C_unfillable_residual_shares_per_order": 0.8167406467977172,
+     "network_sigs_per_order": {
+      "A": 1.0960684844641724,
+      "C": 1.975586556753329
+     },
+     "H": 30,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0015335835382425259
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 3101,
+     "n_noquote": 899,
+     "n_abandon": 457,
+     "n_replaced": 756,
+     "n_live": 2277,
+     "n_exercised": 1980,
+     "n_expired": 367,
+     "realised_vol_pp_per_sqrt_min": 1.2514904882747575,
+     "A_miss_rate_pp": {
+      "mean": 24.37923250564334,
+      "lo": 22.95952918413415,
+      "hi": 25.89567881328604,
+      "n": 3101
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.08208994708994709,
+      "lo": 0.07021064814814816,
+      "hi": 0.09457936507936507,
+      "n": 756
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.08771164021164021,
+      "lo": 0.07636177248677248,
+      "hi": 0.10004034391534392,
+      "n": 756
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.004040632054176072,
+      "lo": -0.008897210577233151,
+      "hi": 0.000786278619800062,
+      "n": 3101
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": 0.0007904321186713963,
+      "lo": -0.0032483815865849723,
+      "hi": 0.00485842287971622,
+      "n": 3101
+     },
+     "fee_usd_per_order": {
+      "mean": 0.018529871009351818,
+      "lo": 0.018204211480167685,
+      "hi": 0.01885030380522412,
+      "n": 3101
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.02784804567413263,
+      "lo": 0.023864404918752743,
+      "hi": 0.031642841458058846,
+      "n": 2277
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.05625945537065053,
+      "lo": 0.05055436838124054,
+      "hi": 0.0626393721633888,
+      "n": 2644
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.00543981941309255,
+      "lo": -0.007697292970009675,
+      "hi": -0.0028644958400515963,
+      "n": 3101
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.0031567012102874433,
+      "lo": -0.006003024073373676,
+      "hi": -8.530338502269346e-05,
+      "n": 2644
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.018529871009351818,
+      "lo": 0.018201037391164143,
+      "hi": 0.018851164914543694,
+      "n": 3101
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.020448242502418574,
+      "lo": 0.017723234440503062,
+      "hi": 0.0233932602386327,
+      "n": 3101
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.015550822315382134,
+      "lo": 0.015022968666021711,
+      "hi": 0.01604738471460819,
+      "n": 3101
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.017668484359883906,
+      "lo": -0.020740470939481892,
+      "hi": -0.014785271659679675,
+      "n": 3101
+     },
+     "inventory_lock_share_secs_per_hold": 466.52466946146404,
+     "A_unfillable_residual_shares_per_order": 1.617865204772654,
+     "C_unfillable_residual_shares_per_order": 0.3876168977749113,
+     "network_sigs_per_order": {
+      "A": 1.0964205095130604,
+      "C": 1.90809416317317
+     },
+     "H": 60,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0013705825137793148
+    },
+    {
+     "n_orders": 4000,
+     "n_quoted": 3149,
+     "n_noquote": 851,
+     "n_abandon": 460,
+     "n_replaced": 743,
+     "n_live": 2602,
+     "n_exercised": 2252,
+     "n_expired": 87,
+     "realised_vol_pp_per_sqrt_min": 1.2353343143585482,
+     "A_miss_rate_pp": {
+      "mean": 23.59479199745951,
+      "lo": 22.070498570974912,
+      "hi": 25.023817084788824,
+      "n": 3149
+     },
+     "repl_signed_usd_per_replaced_order": {
+      "mean": 0.07549125168236877,
+      "lo": 0.06571904441453566,
+      "hi": 0.08570726783310902,
+      "n": 743
+     },
+     "repl_adverse_usd_per_replaced_order": {
+      "mean": 0.07866756393001346,
+      "lo": 0.0695413862718708,
+      "hi": 0.08784690444145356,
+      "n": 743
+     },
+     "A_slip_usd_per_order": {
+      "mean": -0.006814861860908225,
+      "lo": -0.011626230549380756,
+      "hi": -0.001981899015560498,
+      "n": 3149
+     },
+     "C_slip_incl_fee_usd_per_order": {
+      "mean": 0.013818136551286123,
+      "lo": 0.009788838742457923,
+      "hi": 0.017772870308034296,
+      "n": 3149
+     },
+     "fee_usd_per_order": {
+      "mean": 0.036812738012067324,
+      "lo": 0.0361422197205462,
+      "hi": 0.037488028675770085,
+      "n": 3149
+     },
+     "gross_protection_at_use_usd_per_live_hold": {
+      "mean": 0.02839738662567256,
+      "lo": 0.025192063797079167,
+      "hi": 0.03175749423520369,
+      "n": 2602
+     },
+     "gross_protection_at_expiry_usd_per_needed_order": {
+      "mean": 0.08070286351803645,
+      "lo": 0.07415693566381554,
+      "hi": 0.08734678319077722,
+      "n": 2689
+     },
+     "buyer_adv_C_minus_A_usd_per_order": {
+      "mean": -0.02121556430612893,
+      "lo": -0.023548928834550648,
+      "hi": -0.018716926436964116,
+      "n": 3149
+     },
+     "buyer_adv_C_minus_A_usd_per_needed_order": {
+      "mean": -0.01841463889921904,
+      "lo": -0.021172998047601334,
+      "hi": -0.015622717255485311,
+      "n": 2689
+     },
+     "maker_fee_usd_per_hold": {
+      "mean": 0.036812738012067324,
+      "lo": 0.03612092153064465,
+      "hi": 0.03747937135598602,
+      "n": 3149
+     },
+     "maker_option_payout_usd_per_hold": {
+      "mean": 0.023464591933947284,
+      "lo": 0.020865671641791043,
+      "hi": 0.02612948555096856,
+      "n": 3149
+     },
+     "maker_opp_cost_usd_per_hold": {
+      "mean": 0.02148504287075262,
+      "lo": 0.020661902455806076,
+      "hi": 0.022389867153593736,
+      "n": 3149
+     },
+     "maker_net_usd_per_hold": {
+      "mean": -0.008267176246427437,
+      "lo": -0.010948428442891922,
+      "hi": -0.005603067550545147,
+      "n": 3149
+     },
+     "inventory_lock_share_secs_per_hold": 644.5512861225786,
+     "A_unfillable_residual_shares_per_order": 1.510955859002858,
+     "C_unfillable_residual_shares_per_order": 0.08066052715147666,
+     "network_sigs_per_order": {
+      "A": 1.0898697999364877,
+      "C": 1.8666243251825976
+     },
+     "H": 120,
+     "breakeven_rate_option_only_usd_per_share_min": 0.0007916559526870661
+    }
+   ]
+  }
+ },
+ "sweeps_normal_H60": {
+  "d_median_s": [
+   {
+    "value": 5,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.01163877,
+     "lo": -0.013656788999999999,
+     "hi": -0.009375485875000002,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": 0.0014284366666666665,
+     "lo": -0.0011835606458333334,
+     "hi": 0.003827616208333333,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 8.1,
+     "lo": 7.3,
+     "hi": 8.924999999999999,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0008979564667509819
+   },
+   {
+    "value": 20,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.00428402,
+     "lo": -0.0073657763125,
+     "hi": -0.0009795872500000002,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.009940084166666667,
+     "lo": -0.013203842729166665,
+     "hi": -0.0068535536875,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 13.850000000000001,
+     "lo": 12.775,
+     "hi": 14.95,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012414298076283033
+   },
+   {
+    "value": 60,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.0077692075,
+     "lo": -0.01065156225,
+     "hi": -0.004704210374999999,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.009194959166666667,
+     "lo": -0.0120916849375,
+     "hi": -0.006641363854166666,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 21.224999999999998,
+     "lo": 19.975,
+     "hi": 22.575,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.000909938094921121
+   }
+  ],
+  "level_size_shares": [
+   {
+    "value": 5,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.0039907325,
+     "lo": -0.006129696125,
+     "hi": -0.0018181343125,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.007697184166666666,
+     "lo": -0.009995701770833332,
+     "hi": -0.005564869229166667,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 13.850000000000001,
+     "lo": 12.775,
+     "hi": 14.875624999999998,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012233510992671552
+   },
+   {
+    "value": 20,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.00428402,
+     "lo": -0.007153392874999999,
+     "hi": -0.0011125294375000036,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.009940084166666667,
+     "lo": -0.013320328812499997,
+     "hi": -0.006801326791666668,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 13.850000000000001,
+     "lo": 12.799375,
+     "hi": 14.925624999999998,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012414298076283033
+   },
+   {
+    "value": 50,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.00428402,
+     "lo": -0.0073071901875,
+     "hi": -0.0009543789375000028,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.009940084166666667,
+     "lo": -0.013312306604166666,
+     "hi": -0.007028699187500001,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 13.850000000000001,
+     "lo": 12.825000000000001,
+     "hi": 14.899999999999999,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012414298076283033
+   },
+   {
+    "value": 200,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.00428402,
+     "lo": -0.007387932625,
+     "hi": -0.0012420083125000004,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.009940084166666667,
+     "lo": -0.0133142225625,
+     "hi": -0.006770373625000001,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 13.850000000000001,
+     "lo": 12.8,
+     "hi": 14.95,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012414298076283033
+   }
+  ],
+  "spread_ticks": [
+   {
+    "value": 1,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.0040054575,
+     "lo": -0.006991509625,
+     "hi": -0.0009735701250000004,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.005302688333333333,
+     "lo": -0.008432097000000001,
+     "hi": -0.002317487937500001,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 14.549999999999999,
+     "lo": 13.525,
+     "hi": 15.625625,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012540770818078948
+   },
+   {
+    "value": 2,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.00428402,
+     "lo": -0.0071735041875,
+     "hi": -0.0011745093125,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.009940084166666667,
+     "lo": -0.013261664666666667,
+     "hi": -0.006652904270833333,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 13.850000000000001,
+     "lo": 12.825000000000001,
+     "hi": 14.899999999999999,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012414298076283033
+   },
+   {
+    "value": 4,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.00428402,
+     "lo": -0.007265290687499999,
+     "hi": -0.0011972966250000008,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.019689875833333335,
+     "lo": -0.0231508205625,
+     "hi": -0.016598028270833332,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 13.850000000000001,
+     "lo": 12.799375,
+     "hi": 14.975624999999997,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012414298076283033
+   }
+  ],
+  "vol_multiplier": [
+   {
+    "value": 0.5,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.01479577,
+     "lo": -0.016966342625000002,
+     "hi": -0.012446711312499999,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": 0.0019724158333333333,
+     "lo": -0.0002899767291666667,
+     "hi": 0.0041624858958333325,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 7.3999999999999995,
+     "lo": 6.6000000000000005,
+     "hi": 8.175625,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0006070691606203821
+   },
+   {
+    "value": 1,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": -0.00428402,
+     "lo": -0.007238033624999999,
+     "hi": -0.0010120640000000009,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.009940084166666667,
+     "lo": -0.013075595645833334,
+     "hi": -0.00686992475,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 13.850000000000001,
+     "lo": 12.75,
+     "hi": 14.975,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0012414298076283033
+   },
+   {
+    "value": 2,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": 0.017990167499999998,
+     "lo": 0.0133301309375,
+     "hi": 0.0236017640625,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.03245258416666666,
+     "lo": -0.03764254697916666,
+     "hi": -0.027882780229166668,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 23.5,
+     "lo": 22.2,
+     "hi": 24.825,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.0024402582706516676
+   },
+   {
+    "value": 4,
+    "n": 4000,
+    "buyer_adv": {
+     "mean": 0.06158948,
+     "lo": 0.05287016025,
+     "hi": 0.06969281368750001,
+     "n": 4000
+    },
+    "maker_net": {
+     "mean": -0.07242758416666666,
+     "lo": -0.07988515677083334,
+     "hi": -0.06445859804166666,
+     "n": 4000
+    },
+    "A_miss_rate_pp": {
+     "mean": 30.425,
+     "lo": 29.099999999999998,
+     "hi": 31.85,
+     "n": 4000
+    },
+    "breakeven_rate_usd_per_share_min": 0.004568994208879718
+   }
+  ]
+ },
+ "A_vs_B": "identical fills, prices and fees on every path; B's benefit is informational only",
+ "helps_regimes_H60": [
+  "volatile"
+ ],
+ "hurts_regimes_H60": [
+  "placid",
+  "normal",
+  "thin"
+ ],
+ "chart_title": "Priced hold beats the atomic-buy baseline only in the volatile regime;\nat the normal-regime break-even rate ($0.00124/share-min) it is a net buyer cost in placid, normal, thin",
+ "at_own_breakeven_rate_H60": {
+  "placid": {
+   "rate_usd_per_share_min": 0.000207,
+   "buyer_adv": {
+    "mean": -0.00183369875,
+    "lo": -0.0026250215625,
+    "hi": -0.0010361687187500003,
+    "n": 4000
+   },
+   "maker_net": {
+    "mean": -0.009769092916666668,
+    "lo": -0.010842607447916666,
+    "hi": -0.008801170895833332,
+    "n": 4000
+   }
+  },
+  "normal": {
+   "rate_usd_per_share_min": 0.001242,
+   "buyer_adv": {
+    "mean": -0.00428402,
+    "lo": -0.007161680312499999,
+    "hi": -0.0008935340625,
+    "n": 4000
+   },
+   "maker_net": {
+    "mean": -0.009940084166666667,
+    "lo": -0.013027487812499999,
+    "hi": -0.0068617139375000006,
+    "n": 4000
+   }
+  },
+  "volatile": {
+   "rate_usd_per_share_min": 0.005167,
+   "buyer_adv": {
+    "mean": -0.00450188,
+    "lo": -0.015413081718749999,
+    "hi": 0.006636304374999994,
+    "n": 4000
+   },
+   "maker_net": {
+    "mean": -0.009717015833333332,
+    "lo": -0.02105250007291667,
+    "hi": 0.00040426617708333326,
+    "n": 4000
+   }
+  },
+  "thin": {
+   "rate_usd_per_share_min": 0.001371,
+   "buyer_adv": {
+    "mean": -0.007364419542083199,
+    "lo": -0.009849462536278619,
+    "hi": -0.004818376370525637,
+    "n": 3101
+   },
+   "maker_net": {
+    "mean": -0.01574388423089326,
+    "lo": -0.018746696189401266,
+    "hi": -0.01278019925024186,
+    "n": 3101
+   }
+  }
+ },
+ "gemini_observation": {
+  "label": "snapshot, retrieved 2026-11-20T09:13:44Z",
+  "source": "https://api.gemini.com/v1/book/GEMI-FED261211-HIKE25?limit_bids=5&limit_asks=5",
+  "symbol": "GEMI-FED261211-HIKE25",
+  "q_contracts": 40,
+  "top_ask_usd": 0.93,
+  "top_ask_qty": 25.0,
+  "walked_cost_usd": 37.35,
+  "filled": 40,
+  "avg_usd_per_share": 0.93375,
+  "atomic_buy_at_top_limit_fills": false,
+  "instant_size_replacement_cost_usd": 0.15,
+  "hold_fee_usd_at_rate": 0.04968,
+  "H_secs": 60,
+  "gross_protection_if_ask_up_1_tick_usd": 0.4,
+  "caveat": "Single snapshot of a reference venue (display-only, not executable on our program). No volatility or time-series inference is drawn from it."
+ },
+ "chart": "frontend/public/econ/hold-vs-baseline.svg"
+}
