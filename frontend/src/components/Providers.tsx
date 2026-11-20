@@ -33,7 +33,8 @@ export function Providers({ children }: { children: ReactNode }) {
       <WalletProvider wallets={wallets} autoConnect>
         <WalletModalProvider>
           {children}
-          <Toaster theme="dark" position="bottom-right" richColors closeButton />
+          {/* Light toasts to match the paper theme; fonts come from the page. */}
+          <Toaster theme="light" position="bottom-right" richColors closeButton toastOptions={{ style: { fontFamily: "var(--font-sans)" } }} />
         </WalletModalProvider>
       </WalletProvider>
     </ConnectionProvider>

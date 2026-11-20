@@ -26,15 +26,16 @@ export function HoldCountdown({ secondsLeft, total }: { secondsLeft: number; tot
           motionBlur={false}
           duration={0.45}
           fontSize={44}
-          fontWeight={800}
-          textColor={urgent ? "var(--color-warn)" : "var(--color-ink)"}
+          fontWeight={600}
+          textColor={urgent ? "var(--color-accent-strong)" : "var(--color-forest)"}
           intro={false}
         />
-        <span className="text-sm text-muted">s left</span>
+        <span className="font-serif text-sm italic text-muted">seconds left</span>
       </div>
-      <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-bg" aria-hidden>
+      {/* Progress bar: forest while there is time, terracotta for the last 10 seconds. */}
+      <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-forest/15" aria-hidden>
         <div
-          className={`h-full rounded-full ${urgent ? "bg-warn" : "bg-accent-strong"} motion-safe:transition-[width] motion-safe:duration-300`}
+          className={`h-full rounded-full ${urgent ? "bg-accent" : "bg-forest"} motion-safe:transition-[width] motion-safe:duration-300`}
           style={{ width: `${pct}%` }}
         />
       </div>

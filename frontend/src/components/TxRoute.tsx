@@ -65,7 +65,7 @@ export function TxRoute({ history }: { history: TxUpdate[] }) {
           : "border-line bg-surface-2";
 
   return (
-    <div className={`rounded-2xl border p-3 text-sm ${tone}`}>
+    <div className={`rounded-lg border p-4 text-sm ${tone}`}>
       <p role="status" aria-live="polite" className="font-medium">
         {last.stage === "unknown" && <span aria-hidden className="mr-1 inline-block rounded-full bg-warn px-1.5 text-xs font-bold text-bg">?</span>}
         {statusLine(last)}
@@ -75,7 +75,7 @@ export function TxRoute({ history }: { history: TxUpdate[] }) {
           {STEPS.map((s) => {
             const r = reached(s.stage);
             return (
-              <li key={s.stage} className={`rounded-lg px-1.5 py-1 ${r ? "bg-bg/60 text-ink" : "opacity-50"}`}>
+              <li key={s.stage} className={`rounded-md border-t-2 px-1.5 py-1 ${r ? "border-accent bg-bg/60 text-ink" : "border-line opacity-50"}`}>
                 <span aria-hidden>{r ? "●" : "○"}</span> {s.label}
                 <span className="block font-mono">{r ? new Date(r.at).toLocaleTimeString() : "—"}</span>
               </li>
@@ -88,10 +88,10 @@ export function TxRoute({ history }: { history: TxUpdate[] }) {
           <span>
             Signature <span className="font-mono text-ink">{short(sig, 6)}</span>
           </span>
-          <a className="text-accent underline" href={explorerTx(sig)} target="_blank" rel="noreferrer">
+          <a className="link" href={explorerTx(sig)} target="_blank" rel="noreferrer">
             Explorer (devnet) ↗
           </a>
-          <Link className="text-accent underline" href={`/receipt/${sig}`}>
+          <Link className="link" href={`/receipt/${sig}`}>
             Verify receipt →
           </Link>
         </p>

@@ -1,5 +1,9 @@
 "use client";
-/** Top bar: name, three pages, cluster badge and the wallet button. */
+/**
+ * Masthead: tracked-caps wordmark on the left (like a magazine nameplate),
+ * three section links with a terracotta underline for the active page,
+ * then the cluster badge and the wallet button.
+ */
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -17,15 +21,14 @@ const LINKS = [
 export function Nav() {
   const pathname = usePathname();
   return (
-    <header className="sticky top-0 z-30 border-b border-line bg-bg/85 backdrop-blur">
-      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-6 gap-y-2 px-4 py-3">
-        <Link href="/" className="flex items-center gap-2 text-lg font-extrabold tracking-tight">
-          <span aria-hidden className="grid h-7 w-7 place-items-center rounded-lg bg-accent-strong text-sm text-white">
-            H
-          </span>
-          Held
+    <header className="sticky top-0 z-30 border-b border-line bg-bg/80 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl flex-wrap items-center gap-x-10 gap-y-2 px-5 py-4 sm:px-8 sm:py-5">
+        {/* Wordmark — change the text or letter-spacing here. */}
+        <Link href="/" className="text-[13px] font-semibold uppercase tracking-[0.28em] text-forest">
+          Held<span className="text-accent">.</span>
         </Link>
-        <nav aria-label="Main" className="order-3 flex w-full gap-1 overflow-x-auto sm:order-none sm:w-auto">
+
+        <nav aria-label="Main" className="order-3 flex w-full gap-6 overflow-x-auto sm:order-none sm:w-auto">
           {LINKS.map((l) => {
             const active = l.match ? pathname.startsWith(l.match) : pathname === l.href;
             return (
@@ -33,15 +36,21 @@ export function Nav() {
                 key={l.href}
                 href={l.href}
                 aria-current={active ? "page" : undefined}
-                className={`whitespace-nowrap rounded-full px-3 py-1.5 text-sm ${active ? "bg-surface-2 text-ink" : "text-muted hover:text-ink"}`}
+                // The underline is a pseudo-element that grows from the left on hover.
+                className={`relative whitespace-nowrap py-1 text-sm transition-colors after:absolute after:inset-x-0 after:-bottom-px after:h-px after:origin-left after:bg-accent after:transition-transform after:duration-300 ${
+                  active ? "text-ink after:scale-x-100" : "text-muted after:scale-x-0 hover:text-ink hover:after:scale-x-100"
+                }`}
               >
                 {l.label}
               </Link>
             );
           })}
         </nav>
-        <div className="ml-auto flex items-center gap-2">
-          <span className="rounded-full border border-line px-2.5 py-1 text-xs text-muted">● {CLUSTER}</span>
+
+        <div className="ml-auto flex items-center gap-3">
+          <span className="kicker hidden items-center gap-1.5 sm:inline-flex">
+            <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-good" /> {CLUSTER}
+          </span>
           <WalletMultiButton />
         </div>
       </div>

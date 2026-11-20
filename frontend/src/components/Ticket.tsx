@@ -186,41 +186,43 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [buyer, marketOpen, balances.data, notEnoughShares, mode, qty, effectiveMax, busy, shortOnFunds, ask, holdSecs, fee, available]);
 
-  if (venue.loading && !v) return <div className="rounded-3xl border border-line bg-surface p-6 text-muted">Reading the market from Solana…</div>;
-  if (!v) return <div className="rounded-3xl border border-bad/40 bg-surface p-6 text-bad">Couldn&apos;t read the market from Solana. {venue.error}</div>;
+  if (venue.loading && !v) return <div className="rounded-xl border border-line bg-surface p-6 font-serif text-muted">Reading the market from Solana…</div>;
+  if (!v) return <div className="rounded-xl border border-bad/40 bg-surface p-6 text-bad">Couldn&apos;t read the market from Solana. {venue.error}</div>;
 
   return (
-    <section aria-label="Order ticket" className="rounded-3xl border border-line bg-surface p-5 shadow-xl shadow-black/30">
+    <section aria-label="Order ticket" className="relative overflow-hidden rounded-xl border border-line bg-surface p-6 shadow-[0_30px_60px_-30px_rgb(70_45_20/0.35)] sm:p-7">
+      {/* Thin terracotta strip across the top: marks this as the one place money moves. */}
+      <span aria-hidden className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-accent via-accent-strong to-forest" />
       {/* ---- Executable price (solid, full contrast, larger than the reference) ---- */}
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wide text-muted">You can buy now · Solana devnet</p>
-          <p className="mt-1 text-3xl font-extrabold tabular-nums">
-            {usd(shown.ask)} <span className="text-base font-semibold text-muted">per YES</span>
+          <p className="kicker">You can buy now · Solana devnet</p>
+          <p className="mt-2 font-display text-5xl font-semibold tabular-nums leading-none tracking-tight">
+            {usd(shown.ask)} <span className="font-serif text-base font-normal italic tracking-normal text-muted">per YES</span>
           </p>
-          <p className="text-sm text-muted">
+          <p className="mt-2 text-[13px] text-muted">
             {available} of {available + v.poolData.reserved.toNumber()} shares free · {v.poolData.reserved.toNumber()} held by others
           </p>
         </div>
-        <p className="text-right text-[11px] text-muted">
+        <p className="text-right text-[11px] leading-relaxed text-muted">
           Test maker&apos;s ask
           <br />
           terms #{v.poolData.termsSeq.toString()} · read {ago((Date.now() - v.readAt) / 1000)}
         </p>
       </div>
       {venue.error && (
-        <p className="mt-2 rounded-xl bg-warn/10 p-2 text-xs text-warn" role="status">
+        <p className="mt-3 rounded-lg bg-warn/10 p-2 text-xs text-warn" role="status">
           Couldn&apos;t refresh from the network. Showing chain data from {ago((Date.now() - v.readAt) / 1000)}.
         </p>
       )}
 
       {activeHold ? (
         // ---------------- A price is held ----------------
-        <div className="mt-4 rounded-2xl border border-accent/50 bg-accent-strong/10 p-4">
-          <p className="text-xs font-semibold uppercase tracking-wide text-accent">Price held · not bought yet</p>
-          <p className="mt-1 text-lg font-bold">
+        <div className="mt-6 rounded-lg border border-forest/30 bg-forest-soft/60 p-5">
+          <p className="kicker text-forest">Price held · not bought yet</p>
+          <p className="mt-1 font-display text-2xl font-semibold">
             {activeHold.account.qty.toNumber()} YES at {usd(activeHold.account.price)}{" "}
-            <span className="text-sm font-normal text-muted">· fee {usdFee(activeHold.account.feePaid.toNumber())} paid</span>
+            <span className="font-sans text-sm font-normal text-muted">· fee {usdFee(activeHold.account.feePaid.toNumber())} paid</span>
           </p>
           <div className="mt-2">
             <HoldCountdown
@@ -250,22 +252,22 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
         </div>
       ) : (
         // ---------------- Choose: buy now or hold ----------------
-        <div className="mt-4 space-y-3">
+        <div className="mt-6 space-y-4 border-t border-line pt-5">
           <label className="flex items-center justify-between gap-3 text-sm">
-            <span className="text-muted">Shares</span>
+            <span className="kicker">Shares</span>
             <span className="flex items-center gap-1">
-              <button className="h-9 w-9 rounded-full border border-line" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="One fewer share" disabled={busy}>
+              <button className="h-9 w-9 rounded-full border border-line transition-colors hover:border-ink/50" onClick={() => setQty((q) => Math.max(1, q - 1))} aria-label="One fewer share" disabled={busy}>
                 −
               </button>
               <input
-                className="h-9 w-16 rounded-xl border border-line bg-bg text-center tabular-nums"
+                className="h-9 w-16 rounded-lg border border-line bg-bg text-center font-medium tabular-nums outline-none focus:border-accent"
                 inputMode="numeric"
                 aria-label="Number of YES shares"
                 value={qty}
                 disabled={busy}
                 onChange={(e) => setQty(Math.max(1, Math.min(500, Math.floor(Number(e.target.value.replace(/\D/g, "")) || 1))))}
               />
-              <button className="h-9 w-9 rounded-full border border-line" onClick={() => setQty((q) => Math.min(500, q + 1))} aria-label="One more share" disabled={busy}>
+              <button className="h-9 w-9 rounded-full border border-line transition-colors hover:border-ink/50" onClick={() => setQty((q) => Math.min(500, q + 1))} aria-label="One more share" disabled={busy}>
                 +
               </button>
             </span>
@@ -273,29 +275,33 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
 
           <fieldset className="grid gap-2 sm:grid-cols-2" disabled={busy}>
             <legend className="sr-only">How do you want to buy?</legend>
-            <label className={`cursor-pointer rounded-2xl border p-3 ${mode === "now" ? "border-accent bg-accent-strong/10" : "border-line"}`}>
+            <label className={`cursor-pointer rounded-lg border p-4 transition-colors ${mode === "now" ? "border-ink bg-bg" : "border-line hover:border-ink/30"}`}>
               <input type="radio" name="mode" className="sr-only" checked={mode === "now"} onChange={() => setMode("now")} />
-              <span className="font-semibold">◉ Buy now</span>
+              <span className="flex items-center gap-2 font-display text-lg font-semibold">
+                <Dot on={mode === "now"} /> Buy now
+              </span>
               <span className="mt-1 block text-xs text-muted">All or nothing, up to your max. No fee.</span>
               <span className="mt-2 flex items-center gap-1 text-xs">
                 Max{" "}
-                <button type="button" className="rounded-full border border-line px-2" aria-label="Lower max price by one cent" onClick={() => setMaxPrice(Math.max(PRICE_TICK, effectiveMax - PRICE_TICK))}>
+                <button type="button" className="rounded-full border border-line px-2 hover:border-ink/50" aria-label="Lower max price by one cent" onClick={() => setMaxPrice(Math.max(PRICE_TICK, effectiveMax - PRICE_TICK))}>
                   −
                 </button>
                 <b className="tabular-nums">{usd(effectiveMax)}</b>
-                <button type="button" className="rounded-full border border-line px-2" aria-label="Raise max price by one cent" onClick={() => setMaxPrice(Math.min(990_000, effectiveMax + PRICE_TICK))}>
+                <button type="button" className="rounded-full border border-line px-2 hover:border-ink/50" aria-label="Raise max price by one cent" onClick={() => setMaxPrice(Math.min(990_000, effectiveMax + PRICE_TICK))}>
                   +
                 </button>
                 {maxPrice !== null && (
-                  <button type="button" className="text-accent underline" onClick={() => setMaxPrice(null)}>
+                  <button type="button" className="link" onClick={() => setMaxPrice(null)}>
                     reset
                   </button>
                 )}
               </span>
             </label>
-            <label className={`cursor-pointer rounded-2xl border p-3 ${mode === "hold" ? "border-accent bg-accent-strong/10" : "border-line"}`}>
+            <label className={`cursor-pointer rounded-lg border p-4 transition-colors ${mode === "hold" ? "border-ink bg-bg" : "border-line hover:border-ink/30"}`}>
               <input type="radio" name="mode" className="sr-only" checked={mode === "hold"} onChange={() => setMode("hold")} />
-              <span className="font-semibold">○ Hold this price</span>
+              <span className="flex items-center gap-2 font-display text-lg font-semibold">
+                <Dot on={mode === "hold"} /> Hold this price
+              </span>
               <span className="mt-1 block text-xs text-muted">Shares reserved for you in program custody. Decide later.</span>
               <span className="mt-2 flex flex-wrap items-center gap-1 text-xs" role="group" aria-label="Hold length">
                 {HOLD_CHOICES.filter((s) => s <= maxHold).map((s) => (
@@ -303,7 +309,7 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
                     key={s}
                     type="button"
                     aria-pressed={holdSecs === s}
-                    className={`rounded-full border px-2 py-0.5 ${holdSecs === s ? "border-accent text-ink" : "border-line text-muted"}`}
+                    className={`rounded-full border px-2 py-0.5 transition-colors ${holdSecs === s ? "border-ink bg-ink text-bg" : "border-line text-muted hover:border-ink/40"}`}
                     onClick={() => {
                       setMode("hold");
                       setHoldSecs(s);
@@ -320,7 +326,7 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
           </fieldset>
 
           {/* The fee as a number inside the action area, no asterisk (design lesson from Upstox). */}
-          <div className="rounded-xl bg-bg/60 p-3 text-sm tabular-nums">
+          <div className="rounded-lg border-l-2 border-accent bg-surface-2/70 p-4 font-serif text-[15px] leading-relaxed tabular-nums">
             {shown.mode === "now" ? (
               <>
                 You pay at most <b>{usd(effectiveMax * shown.qty)}</b> for {shown.qty} YES. At the current ask: <b>{usd(totalNow)}</b>. If the price moves above
@@ -338,7 +344,7 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
             <p className="text-sm text-warn">
               Only {available} of {qty} shares are available.{" "}
               {available > 0 && (
-                <button className="text-accent underline" onClick={() => setQty(available)}>
+                <button className="link" onClick={() => setQty(available)}>
                   Use {available}
                 </button>
               )}
@@ -348,7 +354,7 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
             {primary.text}
           </Button>
           {!buyer && DEMO_MODE && (
-            <button className="w-full text-center text-sm text-accent underline" onClick={() => select(DemoWalletName)}>
+            <button className="link w-full text-center text-sm" onClick={() => select(DemoWalletName)}>
               No wallet? Use a demo wallet (devnet, no install)
             </button>
           )}
@@ -357,7 +363,7 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
 
       {/* ---- Funds ---- */}
       {buyer && (
-        <div className="mt-3 flex flex-wrap items-center justify-between gap-2 text-xs text-muted">
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-line pt-4 text-xs text-muted">
           <span>
             You: {usd(usdc)} test USDC · {balances.data?.yes ?? 0} YES · {((balances.data?.sol ?? 0) / 1e9).toFixed(3)} SOL
           </span>
@@ -379,18 +385,18 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
 
       {/* ---- Expired holds: show, and let anyone clean up ---- */}
       {expiredHeld.length > 0 && !activeHold && (
-        <div className="mt-3 rounded-xl border border-line p-3 text-sm" role="status">
+        <div className="mt-4 rounded-lg border border-line p-4 font-serif text-[15px]" role="status">
           Hold expired. Your {usdFee(expiredHeld[0].account.feePaid.toNumber())} fee is kept. No shares were bought.{" "}
-          <button className="text-accent underline" onClick={() => release(expiredHeld[0].publicKey)} disabled={busy}>
+          <button className="link" onClick={() => release(expiredHeld[0].publicKey)} disabled={busy}>
             Return the shares to the pool
           </button>{" "}
-          <span className="text-muted">(anyone may do this; it moves nothing to you or the caller).</span>
+          <span className="font-sans text-xs text-muted">(anyone may do this; it moves nothing to you or the caller).</span>
         </div>
       )}
       {lastSettled && !activeHold && history.length === 0 && (
         <p className="mt-3 text-xs text-muted">
           Your last hold was {holdStatus(lastSettled.account)} {ago(chainNow - lastSettled.account.settledAt.toNumber())}.{" "}
-          <a className="text-accent underline" href={explorerAddress(lastSettled.publicKey.toBase58())} target="_blank" rel="noreferrer">
+          <a className="link" href={explorerAddress(lastSettled.publicKey.toBase58())} target="_blank" rel="noreferrer">
             See its on-chain record ↗
           </a>
         </p>
@@ -398,10 +404,10 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
 
       {/* ---- Demo-only simulation, clearly labelled ---- */}
       {DEMO_MODE && (
-        <div className="mt-4 rounded-xl border border-dashed border-warn/40 p-3 text-xs text-muted">
-          <p className="font-semibold text-warn">Demo simulation · not market behaviour</p>
+        <div className="mt-6 rounded-lg border border-dashed border-warn/50 p-4 text-xs text-muted">
+          <p className="kicker text-warn">Demo simulation · not market behaviour</p>
           <p className="mt-1">Make the test maker reprice (a real devnet transaction signed by the maker) to see what a hold protects.</p>
-          <div className="mt-2 flex gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             <Button variant="secondary" onClick={() => reprice("up")} disabled={busy}>
               ▲ Maker raises ask $0.03
             </Button>
@@ -416,5 +422,14 @@ export function Ticket({ entry }: { entry: MarketEntry }) {
         {activeHold ? `Price held: ${activeHold.account.qty.toNumber()} YES at ${usd(activeHold.account.price)}. You haven't bought yet.` : ""}
       </p>
     </section>
+  );
+}
+
+/** Radio marker for the two buy modes: a ring that fills terracotta when chosen. */
+function Dot({ on }: { on: boolean }) {
+  return (
+    <span aria-hidden className={`grid h-4 w-4 place-items-center rounded-full border ${on ? "border-accent" : "border-line"}`}>
+      <span className={`h-2 w-2 rounded-full bg-accent transition-transform duration-200 ${on ? "scale-100" : "scale-0"}`} />
+    </span>
   );
 }

@@ -29,10 +29,10 @@ export function ReferencePanel({ marketId = 1 }: { marketId?: number }) {
   const bestBid = ref?.bids[0];
 
   return (
-    <section aria-label="Gemini Predictions reference data, display only" className="space-y-3 rounded-2xl border border-dashed border-line p-4 text-sm">
+    <section aria-label="Gemini Predictions reference data, display only" className="space-y-4 rounded-xl border border-line bg-surface/60 p-5 text-sm sm:p-6">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-xs font-semibold uppercase tracking-wide text-muted">Reference · {REFERENCE.venue}</h3>
-        <span className="rounded-full border border-line px-2 py-0.5 text-[11px] text-muted">display only · not tradable here</span>
+        <h3 className="kicker">Reference · {REFERENCE.venue}</h3>
+        <span className="rounded-full border border-dashed border-line px-2.5 py-0.5 text-[11px] italic text-muted">display only · not tradable here</span>
       </div>
       {loading && !ref && <p className="text-muted">Loading Gemini data…</p>}
       {error && !ref && <p className="text-muted">Gemini data unavailable right now. Trading here doesn&apos;t depend on it.</p>}
@@ -42,9 +42,9 @@ export function ReferencePanel({ marketId = 1 }: { marketId?: number }) {
           {/* ---- 1. The event board ---- */}
           {ref.event && ref.event.outcomes.length > 0 && (
             <div>
-              <p className="font-medium">
+              <p className="font-display text-base font-semibold">
                 {ref.event.title}{" "}
-                <span className="text-xs font-normal text-muted">
+                <span className="font-sans text-xs font-normal text-muted">
                   · {ref.event.outcomes.length} outcomes{ref.event.volume !== null ? ` · $${Math.round(ref.event.volume).toLocaleString()} traded` : ""}
                 </span>
               </p>
@@ -65,7 +65,7 @@ export function ReferencePanel({ marketId = 1 }: { marketId?: number }) {
                         <tr key={o.symbol} className={`border-t border-line ${ours ? "text-ink" : "text-muted"}`}>
                           <td className="py-1">
                             {o.label}
-                            {ours && <span className="ml-1 rounded bg-accent-strong/20 px-1 text-[10px] text-accent">our market mirrors this</span>}
+                            {ours && <span className="ml-1 rounded bg-accent/10 px-1.5 text-[10px] text-accent">our market mirrors this</span>}
                           </td>
                           <td className="py-1 text-right">{cents(o.bestBid)}</td>
                           <td className="py-1 text-right">{cents(o.bestAsk)}</td>
@@ -105,7 +105,7 @@ export function ReferencePanel({ marketId = 1 }: { marketId?: number }) {
           {/* ---- 2. What your size would cost on Gemini's visible book ---- */}
           {ref.asks.length > 0 && (
             <div>
-              <p className="font-medium">What buying would cost on Gemini&apos;s book right now</p>
+              <p className="font-display text-base font-semibold">What buying would cost on Gemini&apos;s book right now</p>
               <table className="mt-1 w-full text-xs tabular-nums">
                 <thead className="text-muted">
                   <tr>
@@ -143,7 +143,7 @@ export function ReferencePanel({ marketId = 1 }: { marketId?: number }) {
           {/* ---- 3. Recent trades + terms ---- */}
           {ref.trades.length > 0 && (
             <div>
-              <p className="font-medium">Recent Gemini trades</p>
+              <p className="font-display text-base font-semibold">Recent Gemini trades</p>
               <ul className="mt-1 space-y-0.5 text-xs tabular-nums text-muted">
                 {ref.trades.slice(0, 4).map((t, i) => (
                   <li key={i}>
@@ -158,7 +158,7 @@ export function ReferencePanel({ marketId = 1 }: { marketId?: number }) {
             {ref.event?.termsLink && (
               <>
                 {" "}
-                <a className="text-accent underline" href={ref.event.termsLink} target="_blank" rel="noreferrer">
+                <a className="link" href={ref.event.termsLink} target="_blank" rel="noreferrer">
                   Gemini&apos;s contract terms ↗
                 </a>
               </>
