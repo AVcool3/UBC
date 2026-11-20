@@ -1,12 +1,12 @@
 [package]
-name = "ghost_checkout"
+name = "held_quote"
 version = "0.1.0"
-description = "Private, escrowed checkout for social commerce on Solana"
+description = "Price holds for binary outcome shares: buy now or hold an executable price, settled atomically on Solana"
 edition = "2021"
 
 [lib]
 crate-type = ["cdylib", "lib"]
-name = "ghost_checkout"
+name = "held_quote"
 
 [features]
 default = []
@@ -21,6 +21,6 @@ custom-panic = []
 anchor-debug = []
 
 [dependencies]
-# init-if-needed lets release/refund create the recipient's USDC account on the fly.
+# init-if-needed lets buys create the buyer's share account on the fly.
 anchor-lang = { version = "0.32.1", features = ["init-if-needed"] }
 anchor-spl = { version = "0.32.1", features = ["token", "associated_token"] }

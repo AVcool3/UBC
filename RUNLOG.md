@@ -1,0 +1,49 @@
+# RUNLOG: overnight firm-quote build
+
+Compact log so the run can resume after context compaction. Newest entries at the bottom of each section.
+
+## Identifiers (public)
+- Repo: AVcool3/UBC. Baseline: `claude/loving-gauss-q7xuno` @ 95ba201 (Ghost Checkout + Blinks). `main` @ 85cab7b = Ghost Checkout, live at https://ubc-seven.vercel.app (ROLLBACK TARGET, untouched).
+- Feature branch: `claude/firm-quote`, worktree `/home/user/ubc-fq`.
+- Cluster: Solana devnet. Old program (Ghost Checkout) `9TBWXeFennM42nASPhYY78vbNGiMQK252csS9TdgKxdD` stays deployed for rollback.
+- Test USDC mint (reused): `Crsx17TuZzj6Mna53EsSnLQRPfwXuSYnu3Z8kJvi3vfm` (mint authority = demo faucet key).
+- Tools: solana-cli 4.4.1 (Agave), anchor-cli 0.32.1, node 22.23.5, Next 15.5.29, React 19.3.1. No Vercel CLI/token in sandbox → preview comes from Vercel's GitHub integration on push.
+- Commit author: Anvith Vanukuri <113698786+AVcool3@users.noreply.github.com>, no Claude trailers (user requirement).
+
+## Constraints / blocked
+- "Gemini prediction markets tool": NOT installed in this session (no MCP/CLI). Fallback: documented public REST endpoints, read-only.
+- "Prediction Market Microstructure & Integrity Research Reading List.docx": NOT attached and not found in Google Drive → follow citations from the two papers instead.
+- land-book.com returns 403 to the sandbox → design lead uses search results / cached pages; recorded as limitation.
+- Deadline: Devpost 12:00 CST Nov 20. Run started 03:06 CST → plan compressed to ~6h so the user can record.
+
+## Frozen mechanism spec (shared schema; program, UI and econ all follow this)
+- Units: outcome shares are integers (mint decimals 0). Collateral = test USDC, 6 decimals. Prices in collateral base units per share, tick 10_000 ($0.01), 0 < price < 1_000_000.
+- Market PDA ["market", id_le]: admin, collateral/yes/no mints (market PDA = mint authority), collateral vault, question, resolution source, reference symbol, status/outcome. `split(n)` mints n YES + n NO for n × $1 (shares fully collateralized, test assets). `resolve`/`redeem` = later step, admin-resolved (test).
+- Pool PDA ["pool", market, maker]: maker's YES inventory in a pool-owned vault. Fields ask, hold_rate (base units per share-minute), max_hold_secs, available, reserved, sold, seq (bumps on every terms change), updated_at. Invariant: vault balance == available + reserved.
+- buy_now(qty, max_price): atomic, fails if ask > max_price or available < qty.
+- hold(nonce, qty, hold_secs, max_price, max_fee): fee = ceil(hold_rate × qty × hold_secs / 60) paid now to maker, non-refundable. Price = current ask, frozen. available -= qty, reserved += qty. Hold PDA ["hold", pool, buyer, nonce_le].
+- exercise(hold): beneficiary only, requires now < expires_at; pays price × qty, receives qty YES atomically.
+- release(hold): anyone, requires now >= expires_at; reserved → available. Non-overlapping boundary at expires_at.
+- Hold accounts are never closed (they are the on-chain receipt). Every event carries schema_version = 1.
+- Labels: a hold is "Price held", never "filled". Reference price (Gemini) is display-only and never executable.
+
+## Decisions
+- 03:06 Keep Ghost Checkout on main as rollback; build the new product on a new branch (user brief asks for a feature branch).
+- 03:15 Reuse from old repo: Anchor workspace layout, escrow transfer helper pattern, scripts/common, `--use-rpc` deploy, DemoWalletAdapter, demo faucet route, toast/tx helpers, polling hooks, providers, UI primitives. Drop: all shopping/seller/carrier/arbiter/Blink routes and the ghost_checkout program on this branch.
+
+- 03:40 Protocol review → payments/fees now go to a POOL-OWNED proceeds vault + `claim_proceeds` (maker could otherwise close their own ATA to make exercises fail = silent renege). Expiry boundary + fee rounding moved to pure fns with Rust unit tests (5/5 pass).
+- 03:55 Research verdicts: reviewer → C1/C2/C4 FAIL, C3 CONDITIONAL PASS (narrow claim). Econ → atomic buy beats priced hold in placid/normal/thin on $; hold helps only in volatile; at fair rate it is a transfer. Hold cuts unfilled shares 1.62→0.39/order in thin market (certainty, not $). Gemini book GEMI-FED261211-HIKE25: 25 contracts at top ask 0.93 (snapshot 09:10Z) → thin.
+- 03:55 FROZEN product sentences:
+  * User: someone buying YES shares on a binary question from a thin book, who needs a few seconds/minutes to decide.
+  * Decision: buy now at the executable ask, or pay a disclosed, volatility-priced fee to hold that price for N seconds.
+  * Advantage: the hold is a maker-escrowed option — reserved shares sit in program custody and can only go to the holder at the held price (or back to the maker after expiry); no last look, provable from chain state.
+  * Assumption: in thin/volatile books the value of fill certainty exceeds the fee; the maker prices the fee from volatility (hold_rate is a maker term).
+  * Falsifier: if, on identical paths, buy-now + an honest pending/final label leaves buyers no worse off (incl. unfilled residual) than paying the fair hold fee, the hold adds nothing → our own econ says this is TRUE for placid/normal on $; only fill certainty in thin books survives. We ship it as an informed choice with "Buy now" as the default and say so.
+- Reference market: Gemini `GEMI-FED261211-HIKE25` (Fed Dec 2026 hike 25bps). Our devnet market mirrors the question; resolver differs (test admin) → numeric comparison disabled (termsMatch=false), reference shown as display-only.
+- Default maker terms: ask from reference (rounded to tick), hold_rate 1_000 base units/share-min (econ normal-regime break-even ≈ 1_242), max_hold 60s.
+
+## Next action
+- Spawn research + econ subagents; write program `held_quote` + tests.
+
+## Evidence paths
+- docs/research/*.md (subagent reports), econ/ (harness, results, chart), contracts/tests, scratchpad screenshots.

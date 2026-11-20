@@ -1,6 +1,6 @@
-# Anchor workspace config for Ghost Checkout.
-# `anchor keys sync` rewrites the program IDs below (and declare_id! in lib.rs)
-# to match the keypair in target/deploy/ — run it once after cloning.
+# Anchor workspace for Held Price (held_quote program).
+# `anchor keys sync` rewrites the IDs below (and declare_id! in lib.rs)
+# to match target/deploy/held_quote-keypair.json.
 
 [toolchain]
 anchor_version = "0.32.1"
@@ -10,13 +10,12 @@ resolution = true
 skip-lint = false
 
 [programs.localnet]
-ghost_checkout = "9TBWXeFennM42nASPhYY78vbNGiMQK252csS9TdgKxdD"
+held_quote = "32LnKdWnNk93W4C1pD4s3DjdTUAw4aGZZr6tbRMpw8e3"
 
 [programs.devnet]
-ghost_checkout = "9TBWXeFennM42nASPhYY78vbNGiMQK252csS9TdgKxdD"
+held_quote = "32LnKdWnNk93W4C1pD4s3DjdTUAw4aGZZr6tbRMpw8e3"
 
 [provider]
-# Change to "devnet" (or pass --provider.cluster devnet) when deploying.
 cluster = "localnet"
 wallet = "~/.config/solana/id.json"
 
