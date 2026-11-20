@@ -3,12 +3,14 @@
  * Shop feed — every active listing on-chain, with each seller's verifiable
  * track record next to the Buy button.
  */
+import Link from "next/link";
 import { useState } from "react";
 import { CheckoutModal } from "@/components/CheckoutModal";
 import { DemoBanner } from "@/components/DemoBanner";
 import { ProductArt } from "@/components/ProductArt";
 import { TrustChip, trustOf } from "@/components/SellerTrust";
 import { SetupNotice } from "@/components/SetupNotice";
+import { ShareBlinkModal } from "@/components/ShareBlink";
 import { Button, EmptyState, ErrorBlock, LoadingBlock } from "@/components/ui";
 import { short, usd } from "@/lib/format";
 import { useConfig, useMarket } from "@/lib/hooks";
@@ -26,6 +28,7 @@ export default function ShopPage() {
   const config = useConfig(program);
   const market = useMarket(program);
   const [buying, setBuying] = useState<WithKey<ListingAccount> | null>(null);
+  const [sharing, setSharing] = useState<WithKey<ListingAccount> | null>(null);
 
   const listings = market.data?.listings.filter((l) => l.account.active) ?? [];
 
@@ -70,7 +73,10 @@ export default function ShopPage() {
               <ProductArt title={l.account.title} imageUrl={l.account.imageUrl} className="aspect-[4/5] w-full lg:aspect-square" />
               <div className="space-y-3 p-4">
                 <div className="flex items-start justify-between gap-3">
-                  <h2 className="font-semibold leading-snug">{l.account.title}</h2>
+                  {/* Title links to the shareable product page (/buy/<listing>). */}
+                  <Link href={`/buy/${l.publicKey.toBase58()}`} className="hover:underline">
+                    <h2 className="font-semibold leading-snug">{l.account.title}</h2>
+                  </Link>
                   <span className="text-lg font-extrabold">{usd(l.account.price)}</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
@@ -83,9 +89,15 @@ export default function ShopPage() {
                     escrow still protects your money.
                   </p>
                 )}
-                <Button className="w-full py-3" onClick={() => setBuying(l)} disabled={!config.data}>
-                  Buy privately
-                </Button>
+                <div className="flex gap-2">
+                  <Button className="flex-1 py-3" onClick={() => setBuying(l)} disabled={!config.data}>
+                    Buy privately
+                  </Button>
+                  {/* Share this product as a Solana Blink (buy from inside a post). */}
+                  <Button variant="secondary" className="py-3" onClick={() => setSharing(l)} aria-label="Share as Blink" title="Share as Blink">
+                    Share ⚡
+                  </Button>
+                </div>
               </div>
             </article>
           );
@@ -100,6 +112,7 @@ export default function ShopPage() {
           onClose={() => setBuying(null)}
         />
       )}
+      {sharing && <ShareBlinkModal listing={sharing} onClose={() => setSharing(null)} />}
     </>
   );
 }
