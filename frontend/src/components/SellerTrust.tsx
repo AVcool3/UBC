@@ -8,19 +8,11 @@ import Link from "next/link";
 import { explorerAddress } from "@/lib/contracts";
 import { usd } from "@/lib/format";
 import { sellerPda } from "@/lib/pda";
+import { trustLabel, trustOf } from "@/lib/trust";
 import type { SellerAccount } from "@/lib/types";
 
-export function trustOf(s: SellerAccount) {
-  const completed = s.completedOrders.toNumber();
-  const bad = s.refundedUnshipped.toNumber() + s.disputesLost.toNumber();
-  const total = completed + bad;
-  const score = total === 0 ? null : Math.round((completed / total) * 100);
-  // Only call a seller "bad" once there are at least 2 bad outcomes, so one
-  // unlucky order doesn't brand a new shop. Tweak these thresholds freely.
-  const level: "new" | "good" | "mixed" | "bad" =
-    score === null ? "new" : score >= 90 ? "good" : score < 60 && bad >= 2 ? "bad" : "mixed";
-  return { completed, bad, total, score, level };
-}
+// trustOf lives in lib/trust.ts so server routes (the Blink) can use it too.
+export { trustOf };
 
 const LEVEL_STYLE = {
   new: "bg-surface-2 text-muted",
@@ -32,8 +24,7 @@ const LEVEL_STYLE = {
 /** Compact chip for the feed: "✓ 98% · 214 delivered". */
 export function TrustChip({ seller }: { seller: SellerAccount }) {
   const t = trustOf(seller);
-  const label =
-    t.score === null ? "New seller · no orders yet" : `${t.level === "good" ? "✓" : "⚠"} ${t.score}% · ${t.completed} delivered`;
+  const label = trustLabel(seller);
   return (
     <Link
       href={`/seller/${seller.authority.toBase58()}`}

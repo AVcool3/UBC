@@ -85,7 +85,7 @@ export function CheckoutModal({ listing, seller, config, onClose }: Props) {
         aria-label="Private checkout"
       >
         <div className="mb-4 flex items-start gap-4">
-          <ProductArt title={listing.account.title} imageUrl={listing.account.imageUrl} className="h-20 w-20 shrink-0 rounded-xl" />
+          <ProductArt title={listing.account.title} imageUrl={listing.account.imageUrl} className="h-20 w-20 shrink-0 rounded-xl [&_span]:text-4xl" />
           <div className="min-w-0 flex-1">
             <h2 className="truncate text-lg font-bold">{listing.account.title}</h2>
             <p className="text-sm text-muted">
