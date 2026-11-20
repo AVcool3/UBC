@@ -9,9 +9,9 @@ Held is a consumer order ticket for binary outcome shares ("Will the Fed hike 25
 
 Every action ends in a **receipt anyone can verify** against chain state, no wallet needed.
 
-| Price held while the maker reprices | Receipt checked against chain state | Mobile |
+| Trade: question, live price and the buy-now / hold ticket | Receipt checked against chain state | Mobile |
 |---|---|---|
-| ![hold](docs/screenshots/hold-protected.png) | ![receipt](docs/screenshots/receipt.png) | ![mobile](docs/screenshots/mobile.png) |
+| ![trade](docs/screenshots/trade.png) | ![receipt](docs/screenshots/receipt.png) | ![mobile](docs/screenshots/mobile.png) |
 
 | | |
 |---|---|
@@ -25,7 +25,7 @@ Every action ends in a **receipt anyone can verify** against chain state, no wal
 
 ## The honest result (read this first)
 
-We started out wanting to sell everyone a "firm quote". **Our own replay overturned that.** On identical, seeded synthetic price paths, a plain atomic buy with a max price beats a priced hold in calm, normal and thin markets; the hold helps only when prices move fast. A fairly priced hold is an option: it moves value between buyer and maker, it doesn't create any. What survives is **fill certainty**: in thin books the hold cut unfilled shares from **1.62 → 0.39 per order**. A real Gemini book we sampled had only 25 contracts at the best ask.
+**A priced hold is not a free win.** On identical, seeded synthetic price paths, a plain atomic buy with a max price beats a priced hold in calm, normal and thin markets; the hold helps only when prices move fast. A fairly priced hold is an option: it moves value between buyer and maker, it doesn't create any. What survives is **fill certainty**: in thin books the hold cut unfilled shares from **1.62 → 0.39 per order**. A real Gemini book we sampled had only 25 contracts at the best ask.
 
 So the app defaults to **Buy now** and offers the hold as an explicitly priced option, at $0.00125/share-minute (≈ the replay's normal-regime break-even of $0.00124; makers should scale it with volatility). Details: [`econ/RESULTS.md`](econ/RESULTS.md) and the in-app **Evidence** page.
 
@@ -58,7 +58,7 @@ The maker can't sell reserved shares to someone else, withdraw them, reprice the
 - **The demo maker is ours.** "Simulate a reprice" in demo mode is labelled as a simulation; it signs the normal `set_terms` with the maker's key and can't touch existing holds.
 - **Clock:** expiry uses the cluster's `unix_timestamp`, whole seconds; the UI disables exercise in the last ~1.5 s.
 - **Rent:** each hold creates a ~0.0021 SOL account that stays as the on-chain receipt (shown next to the fee).
-- **Resolution only after close:** the admin can't resolve while holds could still be live (fixed after the independent review).
+- **Resolution only after close:** the admin can't resolve while holds could still be live.
 - **Demo guard rails:** one hold reserves at most 100 shares; the demo faucet has a global budget; the demo "reprice" button keeps the ask within $0.06 of $0.93. Rate limits are per server instance (a speed bump, not a security boundary).
 
 ## Repo layout
@@ -122,4 +122,4 @@ Devnet set-up (already done for the IDs above): deploy with `solana program depl
 
 ## Built during the hackathon
 
-All code here was written during UBC 2026 (Nov 2026). The previous concept (Ghost Checkout) remains on `main` and at its original deployment as a rollback.
+All code here was written during UBC 2026 (Nov 2026).
