@@ -18,6 +18,8 @@ pub const HOLD_SEED: &[u8] = b"hold";
 pub const SHARE_UNIT: u64 = 1_000_000;
 /// Price grid: $0.01.
 pub const PRICE_TICK: u64 = 10_000;
+/// Most shares one hold may reserve, so a single cheap hold can't lock a whole pool.
+pub const MAX_HOLD_QTY: u64 = 100;
 /// Longest hold any pool may offer (10 minutes).
 pub const MAX_HOLD_SECS_LIMIT: u32 = 600;
 

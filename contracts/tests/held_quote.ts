@@ -536,98 +536,93 @@ describe("held_quote", () => {
       expect(await bal(ata(usdc, maker.publicKey))).to.equal(before + amount);
     });
 
-    it("after resolution: no trading, no exercise; release still works; winners redeem $1", async () => {
-      // The randomized run may have sold out the pool; mint 5 fresh sets and restock.
+    it("resolution is refused before trading closes (it would void live holds)", async () => {
+      await expectError(program.methods.resolve(1).accountsPartial({ admin: admin.publicKey, market }).rpc(), "ResolveBeforeClose");
+    });
+
+    it("one hold can't reserve more than 100 shares", async () => {
+      await expectError(hold(buyerA, 6000, 101, 10), "HoldTooLarge");
+    });
+
+    it("short market: holds can't outlast close; after close: no trading, resolve, release, redeem $1", async () => {
+      const short = await newMarket(10);
+      const closeTime = (await program.account.market.fetch(short.market)).closeTime.toNumber();
+      const p2 = pda([Buffer.from("pool"), short.market.toBuffer(), maker.publicKey.toBuffer()]);
+      const v2 = { yesVault: ata(short.yesMint, p2), proceeds: ata(usdc, p2) };
+      // Maker mints 10 sets on this market and puts the YES side in custody.
       await as(maker)
-        .methods.split(new BN(5))
+        .methods.split(new BN(10))
         .accountsPartial({
           owner: maker.publicKey,
-          market,
+          market: short.market,
           collateralMint: usdc,
-          yesMint,
-          noMint,
-          vault,
+          yesMint: short.yesMint,
+          noMint: short.noMint,
+          vault: short.vault,
           ownerCollateral: ata(usdc, maker.publicKey),
-          ownerYes: ata(yesMint, maker.publicKey),
-          ownerNo: ata(noMint, maker.publicKey),
+          ownerYes: ata(short.yesMint, maker.publicKey),
+          ownerNo: ata(short.noMint, maker.publicKey),
         })
         .rpc();
-      await moveInventory("deposit", 5);
-      const h = await hold(buyerA, 5000, 1, 2);
-      const rec = await program.account.hold.fetch(h);
-      await program.methods.resolve(1).accountsPartial({ admin: admin.publicKey, market }).rpc();
-      await expectError(buyNow(buyerA, 1, 999_999), "MarketResolved");
-      await expectError(exercise(buyerA, h), "MarketResolved");
-      await waitUntil(rec.expiresAt.toNumber());
-      await release(stranger, h);
-      await assertPoolInvariant();
+      await as(maker)
+        .methods.openPool(TERMS)
+        .accountsPartial({ maker: maker.publicKey, market: short.market, pool: p2, yesMint: short.yesMint, collateralMint: usdc, yesVault: v2.yesVault, proceedsVault: v2.proceeds })
+        .rpc();
+      await as(maker)
+        .methods.deposit(new BN(10))
+        .accountsPartial({ maker: maker.publicKey, pool: p2, yesMint: short.yesMint, yesVault: v2.yesVault, makerYes: ata(short.yesMint, maker.publicKey) })
+        .rpc();
 
-      const shares = await bal(ata(yesMint, buyerA.publicKey));
+      const holdOn = (nonce: number, qty: number, secs: number) => {
+        const h = pda([Buffer.from("hold"), p2.toBuffer(), buyerA.publicKey.toBuffer(), le(nonce)]);
+        return {
+          h,
+          send: () =>
+            as(buyerA)
+              .methods.hold(new BN(nonce), new BN(qty), secs, new BN(999_999), new BN(1_000_000))
+              .accountsPartial({ buyer: buyerA.publicKey, market: short.market, pool: p2, hold: h, collateralMint: usdc, proceedsVault: v2.proceeds, buyerCollateral: ata(usdc, buyerA.publicKey) })
+              .rpc(),
+        };
+      };
+      const shortBuyer = {
+        buyer: buyerA.publicKey,
+        market: short.market,
+        pool: p2,
+        yesMint: short.yesMint,
+        collateralMint: usdc,
+        yesVault: v2.yesVault,
+        proceedsVault: v2.proceeds,
+        buyerCollateral: ata(usdc, buyerA.publicKey),
+        buyerYes: ata(short.yesMint, buyerA.publicKey),
+      };
+
+      await expectError(holdOn(1, 1, 30).send(), "HoldPastClose");
+      const live = holdOn(2, 2, 3);
+      await live.send();
+      await as(buyerA).methods.buyNow(new BN(1), new BN(999_999)).accountsPartial(shortBuyer).rpc();
+
+      await waitUntil(closeTime);
+      await expectError(as(buyerA).methods.buyNow(new BN(1), new BN(999_999)).accountsPartial(shortBuyer).rpc(), "MarketClosed");
+      await program.methods.resolve(1).accountsPartial({ admin: admin.publicKey, market: short.market }).rpc();
+      // The hold expired at or before close, so it can't be exercised — only released.
+      await expectError(as(buyerA).methods.exercise().accountsPartial({ ...shortBuyer, hold: live.h }).rpc(), "HoldExpired");
+      await as(stranger).methods.release().accountsPartial({ caller: stranger.publicKey, pool: p2, hold: live.h }).rpc();
+      const p2State = await program.account.pool.fetch(p2);
+      expect(await bal(v2.yesVault)).to.equal(p2State.available.toNumber() + p2State.reserved.toNumber());
+
+      // Winners redeem $1 per share; the losing side can't redeem.
       const usdcBefore = await bal(ata(usdc, buyerA.publicKey));
-      const redeem = (mint: PublicKey) =>
-        as(buyerA)
-          .methods.redeem(new BN(shares))
-          .accountsPartial({
-            owner: buyerA.publicKey,
-            market,
-            collateralMint: usdc,
-            winningMint: mint,
-            vault,
-            ownerWinning: ata(mint, buyerA.publicKey),
-            ownerCollateral: ata(usdc, buyerA.publicKey),
-          })
-          .rpc();
-      // NO lost: the maker holds NO shares, but the program refuses to pay for them.
+      await as(buyerA)
+        .methods.redeem(new BN(1))
+        .accountsPartial({ owner: buyerA.publicKey, market: short.market, collateralMint: usdc, winningMint: short.yesMint, vault: short.vault, ownerWinning: ata(short.yesMint, buyerA.publicKey), ownerCollateral: ata(usdc, buyerA.publicKey) })
+        .rpc();
+      expect(await bal(ata(usdc, buyerA.publicKey))).to.equal(usdcBefore + USD);
       await expectError(
         as(maker)
           .methods.redeem(new BN(1))
-          .accountsPartial({
-            owner: maker.publicKey,
-            market,
-            collateralMint: usdc,
-            winningMint: noMint,
-            vault,
-            ownerWinning: ata(noMint, maker.publicKey),
-            ownerCollateral: ata(usdc, maker.publicKey),
-          })
+          .accountsPartial({ owner: maker.publicKey, market: short.market, collateralMint: usdc, winningMint: short.noMint, vault: short.vault, ownerWinning: ata(short.noMint, maker.publicKey), ownerCollateral: ata(usdc, maker.publicKey) })
           .rpc(),
         "MarketNotResolved"
-      );
-      await redeem(yesMint);
-      expect(await bal(ata(usdc, buyerA.publicKey))).to.equal(usdcBefore + shares * USD);
-      expect(await bal(ata(yesMint, buyerA.publicKey))).to.equal(0);
-    });
-
-    it("a hold can't outlast the market's close", async () => {
-      const short = await newMarket(5);
-      const p2 = pda([Buffer.from("pool"), short.market.toBuffer(), maker.publicKey.toBuffer()]);
-      await as(maker)
-        .methods.openPool(TERMS)
-        .accountsPartial({
-          maker: maker.publicKey,
-          market: short.market,
-          pool: p2,
-          yesMint: short.yesMint,
-          collateralMint: usdc,
-          yesVault: ata(short.yesMint, p2),
-          proceedsVault: ata(usdc, p2),
-        })
-        .rpc();
-      const h = pda([Buffer.from("hold"), p2.toBuffer(), buyerB.publicKey.toBuffer(), le(1)]);
-      await expectError(
-        as(buyerB)
-          .methods.hold(new BN(1), new BN(1), 30, new BN(999_999), new BN(1_000_000))
-          .accountsPartial({
-            buyer: buyerB.publicKey,
-            market: short.market,
-            pool: p2,
-            hold: h,
-            collateralMint: usdc,
-            proceedsVault: ata(usdc, p2),
-            buyerCollateral: ata(usdc, buyerB.publicKey),
-          })
-          .rpc(),
-        "HoldPastClose"
       );
     });
   });

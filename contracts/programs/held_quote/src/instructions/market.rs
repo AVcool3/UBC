@@ -239,6 +239,10 @@ pub fn handle_resolve(ctx: Context<Resolve>, outcome: u8) -> Result<()> {
     require!(outcome == 1 || outcome == 2, HeldError::InvalidOutcome);
     let market = &mut ctx.accounts.market;
     require!(market.status == MarketStatus::Open, HeldError::MarketResolved);
+    // Only after trading closes: resolving early would void live holds (their
+    // exercise needs an unresolved market) while the maker keeps the fees.
+    // Holds can't outlast close_time, so after close no hold is still exercisable.
+    require!(Clock::get()?.unix_timestamp >= market.close_time, HeldError::ResolveBeforeClose);
     market.status = MarketStatus::Resolved;
     market.outcome = outcome;
     emit!(MarketResolved {

@@ -191,6 +191,7 @@ pub fn handle_hold(
     let market = &ctx.accounts.market;
     require_trading(market, now)?;
     require!(qty > 0, HeldError::InvalidQuantity);
+    require!(qty <= MAX_HOLD_QTY, HeldError::HoldTooLarge);
     let pool = &ctx.accounts.pool;
     require!(ctx.accounts.buyer.key() != pool.maker, HeldError::SelfTrade);
     require!(hold_secs > 0 && hold_secs <= pool.max_hold_secs, HeldError::InvalidHoldLength);

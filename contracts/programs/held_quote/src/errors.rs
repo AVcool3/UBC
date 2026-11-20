@@ -45,4 +45,9 @@ pub enum HeldError {
     WrongTokenAccount,
     #[msg("Arithmetic overflow")]
     Overflow,
+    // Appended (not inserted) so earlier error codes keep their numbers.
+    #[msg("A market can only be resolved after trading closes")]
+    ResolveBeforeClose,
+    #[msg("One hold can reserve at most 100 shares")]
+    HoldTooLarge,
 }
