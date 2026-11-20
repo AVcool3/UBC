@@ -42,8 +42,18 @@ Compact log so the run can resume after context compaction. Newest entries at th
 - Reference market: Gemini `GEMI-FED261211-HIKE25` (Fed Dec 2026 hike 25bps). Our devnet market mirrors the question; resolver differs (test admin) → numeric comparison disabled (termsMatch=false), reference shown as display-only.
 - Default maker terms: ask from reference (rounded to tick), hold_rate 1_000 base units/share-min (econ normal-regime break-even ≈ 1_242), max_hold 60s.
 
+- 03:50 Program deployed to devnet (opt-level z → 334 KB, 1.70 SOL rent). Program `32LnKdWnNk93W4C1pD4s3DjdTUAw4aGZZr6tbRMpw8e3`. seed-market: market `gnEJ…KzUd`, pool `BQEG…vunx`, maker = seller-glow key (already in Vercel env as DEMO_SELLER_KEYS[0]), admin = arbiter key, 300 YES in custody, ask from live Gemini best ask (0.93). Example receipts in frontend/src/deployment.json.
+- 04:20 Frontend replaced (Held): Ticket, TxRoute (simulate→sign→submitted→confirmed→finalized, "unknown"), receipt verifier, Evidence, /api/reference (fixed host, cached, labelled), /api/demo/{faucet,reprice}. React Bits Counter vendored for the countdown.
+- 04:45 Devnet E2E passed (see README "Test results"). Fixed: raw InvalidAccountForFee → plain copy; "Checking your balance…" state; countdown digit bleed (fade 0, minDigits 2).
+- 04:50 hold_rate set to 1250 ($0.00125/share-min) via set-terms (econ break-even 0.001242).
+- 04:55 Pushed `claude/firm-quote`. Vercel preview `ubc-git-claude-firm-quote-avcool3s-projects.vercel.app` exists but is behind Vercel Authentication (SSO 302) → user must disable preview protection. Cannot verify deployed URL from sandbox.
+
+## Commands
+- Local tests: start `solana-test-validator --reset`, deploy `target/deploy/held_quote.so`, then `NODE_OPTIONS=--no-experimental-strip-types ANCHOR_PROVIDER_URL=http://127.0.0.1:8899 ANCHOR_WALLET=~/.config/solana/id.json npx ts-mocha -p ./tsconfig.json -t 1000000 --exit tests/held_quote.ts` (Node 22 type-stripping must be off for ts-mocha).
+- Browser E2E: scratchpad e2e-held.js against `next start -p 3001` (NODE_USE_ENV_PROXY=1 for server fetches).
+
 ## Next action
-- Spawn research + econ subagents; write program `held_quote` + tests.
+- Apply independent reviewer's second-pass findings (docs/research/review-2.md), rerun tests, push. Then final report.
 
 ## Evidence paths
 - docs/research/*.md (subagent reports), econ/ (harness, results, chart), contracts/tests, scratchpad screenshots.
