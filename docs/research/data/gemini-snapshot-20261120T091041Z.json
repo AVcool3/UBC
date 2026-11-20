@@ -1,0 +1,616 @@
+{
+ "header": {
+  "retrieved_at_utc": "2026-11-20T09:10:41.963Z",
+  "url": [
+   "https://api.gemini.com/v1/prediction-markets/events?status=active&category=Economics&limit=20",
+   "https://api.gemini.com/v1/prediction-markets/events/FED261211",
+   "https://api.gemini.com/v1/book/GEMI-FED261211-HIKE25?limit_bids=10&limit_asks=10",
+   "https://api.gemini.com/v1/pubticker/GEMI-FED261211-HIKE25",
+   "https://api.gemini.com/v1/trades/GEMI-FED261211-HIKE25?limit_trades=10"
+  ],
+  "note": "Read-only, unauthenticated public GETs to api.gemini.com (Gemini Predictions / Gemini Titan DCM). No account, no auth, no orders. Arrays trimmed and image URLs dropped; values otherwise verbatim. Prices are USD per $1-notional contract (0.01-0.99), equal to implied probability. Reference/display only: NOT executable for our Solana devnet product."
+ },
+ "calls": {
+  "discovery": {
+   "url": "https://api.gemini.com/v1/prediction-markets/events?status=active&category=Economics&limit=20",
+   "requested_at_utc": "2026-11-20T09:10:41.963Z",
+   "response": {
+    "pagination": {
+     "limit": 20,
+     "offset": 0,
+     "total": 9
+    },
+    "data": [
+     {
+      "id": "301111",
+      "ticker": "FED261211",
+      "title": "Fed decision in December?",
+      "type": "categorical",
+      "category": "Economics",
+      "status": "active",
+      "createdAt": "2026-10-02T16:34:37.931Z",
+      "effectiveDate": "2026-10-02T16:34:37.931Z",
+      "expiryDate": "2026-12-11T05:00:00.000Z",
+      "volume": "14638.37",
+      "volume24h": "499.92",
+      "termsLink": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+      "template": "binary",
+      "contracts": [
+       {
+        "id": "301111-735865",
+        "label": "Hike 25bps",
+        "ticker": "HIKE25",
+        "instrumentSymbol": "GEMI-FED261211-HIKE25",
+        "status": "active",
+        "marketState": "open",
+        "prices": {
+         "buy": {
+          "yes": "0.93",
+          "no": "0.11"
+         },
+         "sell": {
+          "yes": "0.89",
+          "no": "0.07"
+         },
+         "bestBid": "0.89",
+         "bestAsk": "0.93",
+         "lastTradePrice": "0.93"
+        },
+        "expiryDate": "2026-12-11T05:00:00.000Z",
+        "effectiveDate": "2026-10-02T16:40:00.000Z",
+        "createdAt": "2026-10-02T16:34:37.931Z",
+        "termsAndConditionsUrl": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+        "priceIncrement": "0.01",
+        "priceMinimum": "0.01",
+        "quantityIncrement": "0.01",
+        "quantityMinimum": "0.01",
+        "quoteAssetPrecision": 2,
+        "isCombo": false,
+        "description": {
+         "data": {},
+         "content": [
+          {
+           "data": {},
+           "marks": [],
+           "value": "If the Federal Reserve increases rates by 25bps on December 9, 2026, then the market resolves to Yes. Otherwise, it resolves to No. Outcome verified from the Federal Reserve. This market is mutually exclusive. Therefore, only one bucket, at maximum, can resolve to Yes. If the scheduled December 8–9 FOMC meeting is canceled and does not occur on its scheduled dates, then the strike for “Fed maintains rate” will resolve to Yes and all others will resolve to No. View the full [rules](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa739111ce4d14031b8fa642d703f6417?alt=media\\&token=018dc0da-fca8-43f8-a4c4-6d0dde135f95\\&apiKey=1b77ce3a269a43e985e77f3d65f715ba)",
+           "nodeType": "text"
+          }
+         ],
+         "nodeType": "document"
+        }
+       }
+      ],
+      "_trimmed_contracts": 4
+     },
+     {
+      "id": "3875",
+      "ticker": "NASDAQ2026",
+      "title": "NASDAQ-100 close price end of 2026?",
+      "type": "categorical",
+      "category": "Economics",
+      "status": "active",
+      "createdAt": "2026-03-03T11:39:35.147Z",
+      "effectiveDate": "2026-03-03T11:39:35.147Z",
+      "expiryDate": "2026-12-31T21:00:00.000Z",
+      "volume": "54977",
+      "volume24h": "195",
+      "termsLink": "",
+      "contracts": [
+       {
+        "id": "3875-30648",
+        "label": "26,000 to 26,499.99",
+        "ticker": "260002649999",
+        "instrumentSymbol": "GEMI-NASDAQ2026-260002649999",
+        "status": "active",
+        "marketState": "open",
+        "prices": {
+         "buy": {
+          "yes": "0.97",
+          "no": "0.03"
+         },
+         "sell": {
+          "yes": "0.97",
+          "no": "0.03"
+         },
+         "lastTradePrice": "0.97"
+        },
+        "expiryDate": "2026-12-31T21:00:00.000Z",
+        "effectiveDate": "2026-03-03T10:00:00.000Z",
+        "createdAt": "2026-03-03T11:39:35.147Z",
+        "termsAndConditionsUrl": "",
+        "priceIncrement": "0.01",
+        "priceMinimum": "0.01",
+        "quantityIncrement": "1",
+        "quantityMinimum": "1",
+        "quoteAssetPrecision": 2,
+        "isCombo": false,
+        "description": {
+         "data": {},
+         "content": [
+          {
+           "data": {},
+           "marks": [],
+           "value": "If the official NASDAQ-100 Index closing value on December 31, 2026 (or, if the index does not publish a close on that date, the last official closing value published by Nasdaq prior to 11:59:59 PM ET on December 31, 2026) is from 26,000.00 to 26,499.99 inclusive, this market resolves to Yes. Otherwise, it resolves to No. Outcome verified from Google Finance.\n\nRead the full contract [terms & conditions](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2F13749dfcb87e4ecc8d88c9cdf3d5cea9?alt=media&token=4907b68a-a6c5-4e1a-973f-6af20fe9d50c&apiKey=1b77ce3a269a43e985e77f3d65f715ba).",
+           "nodeType": "text"
+          }
+         ],
+         "nodeType": "document"
+        }
+       }
+      ],
+      "_trimmed_contracts": 29
+     },
+     {
+      "id": "3872",
+      "ticker": "SPXEND26",
+      "title": "S&P close price end of 2026?",
+      "type": "categorical",
+      "category": "Economics",
+      "status": "active",
+      "createdAt": "2026-03-03T11:34:16.847Z",
+      "effectiveDate": "2026-03-03T11:34:16.847Z",
+      "expiryDate": "2026-12-31T21:00:00.000Z",
+      "volume": "61856",
+      "volume24h": "259",
+      "termsLink": "",
+      "contracts": [
+       {
+        "id": "3872-30601",
+        "label": "7,400 to 7,599.99",
+        "ticker": "74007599",
+        "instrumentSymbol": "GEMI-SPXEND26-74007599",
+        "status": "active",
+        "marketState": "open",
+        "prices": {
+         "buy": {
+          "yes": "0.18",
+          "no": "0.85"
+         },
+         "sell": {
+          "yes": "0.15",
+          "no": "0.82"
+         },
+         "bestBid": "0.15",
+         "bestAsk": "0.18",
+         "lastTradePrice": "0.18"
+        },
+        "expiryDate": "2026-12-31T21:00:00.000Z",
+        "effectiveDate": "2026-03-03T10:00:00.000Z",
+        "createdAt": "2026-03-03T11:34:16.847Z",
+        "termsAndConditionsUrl": "",
+        "priceIncrement": "0.01",
+        "priceMinimum": "0.01",
+        "quantityIncrement": "1",
+        "quantityMinimum": "1",
+        "quoteAssetPrecision": 2,
+        "isCombo": false,
+        "description": {
+         "data": {},
+         "content": [
+          {
+           "data": {},
+           "marks": [],
+           "value": "If the S&P 500 index value on Dec 31, 2026 at 4pm EST is between the listred price range, then the market resolves to Yes. Outcome verified from For example, Google Finance. \n\nThe market will close on December 31, 2026. The market will expire at the sooner of the first release of the data, or one week after December 31, 2026. Read the full contract [terms & conditions](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2F13749dfcb87e4ecc8d88c9cdf3d5cea9?alt=media&token=4907b68a-a6c5-4e1a-973f-6af20fe9d50c&apiKey=1b77ce3a269a43e985e77f3d65f715ba).",
+           "nodeType": "text"
+          }
+         ],
+         "nodeType": "document"
+        }
+       }
+      ],
+      "_trimmed_contracts": 26
+     }
+    ],
+    "_trimmed_events": 6
+   }
+  },
+  "event_detail": {
+   "url": "https://api.gemini.com/v1/prediction-markets/events/FED261211",
+   "requested_at_utc": "2026-11-20T09:10:42.218Z",
+   "response": {
+    "id": "301111",
+    "ticker": "FED261211",
+    "title": "Fed decision in December?",
+    "type": "categorical",
+    "category": "Economics",
+    "status": "active",
+    "createdAt": "2026-10-02T16:34:37.931Z",
+    "effectiveDate": "2026-10-02T16:34:37.931Z",
+    "expiryDate": "2026-12-11T05:00:00.000Z",
+    "volume": "14638.37",
+    "volume24h": "499.92",
+    "termsLink": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+    "template": "binary",
+    "contracts": [
+     {
+      "id": "301111-735865",
+      "label": "Hike 25bps",
+      "ticker": "HIKE25",
+      "instrumentSymbol": "GEMI-FED261211-HIKE25",
+      "status": "active",
+      "marketState": "open",
+      "prices": {
+       "buy": {
+        "yes": "0.93",
+        "no": "0.11"
+       },
+       "sell": {
+        "yes": "0.89",
+        "no": "0.07"
+       },
+       "bestBid": "0.89",
+       "bestAsk": "0.93",
+       "lastTradePrice": "0.93"
+      },
+      "expiryDate": "2026-12-11T05:00:00.000Z",
+      "effectiveDate": "2026-10-02T16:40:00.000Z",
+      "createdAt": "2026-10-02T16:34:37.931Z",
+      "termsAndConditionsUrl": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+      "priceIncrement": "0.01",
+      "priceMinimum": "0.01",
+      "quantityIncrement": "0.01",
+      "quantityMinimum": "0.01",
+      "quoteAssetPrecision": 2,
+      "isCombo": false,
+      "description": {
+       "data": {},
+       "content": [
+        {
+         "data": {},
+         "marks": [],
+         "value": "If the Federal Reserve increases rates by 25bps on December 9, 2026, then the market resolves to Yes. Otherwise, it resolves to No. Outcome verified from the Federal Reserve. This market is mutually exclusive. Therefore, only one bucket, at maximum, can resolve to Yes. If the scheduled December 8–9 FOMC meeting is canceled and does not occur on its scheduled dates, then the strike for “Fed maintains rate” will resolve to Yes and all others will resolve to No. View the full [rules](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa739111ce4d14031b8fa642d703f6417?alt=media\\&token=018dc0da-fca8-43f8-a4c4-6d0dde135f95\\&apiKey=1b77ce3a269a43e985e77f3d65f715ba)",
+         "nodeType": "text"
+        }
+       ],
+       "nodeType": "document"
+      }
+     },
+     {
+      "id": "301111-735867",
+      "label": "Hike >25bps",
+      "ticker": "HIKEGT25",
+      "instrumentSymbol": "GEMI-FED261211-HIKEGT25",
+      "status": "active",
+      "marketState": "open",
+      "prices": {
+       "buy": {
+        "yes": "0.07",
+        "no": "0.98"
+       },
+       "sell": {
+        "yes": "0.02",
+        "no": "0.93"
+       },
+       "bestBid": "0.02",
+       "bestAsk": "0.07",
+       "lastTradePrice": "0.09"
+      },
+      "expiryDate": "2026-12-11T05:00:00.000Z",
+      "effectiveDate": "2026-10-02T16:40:00.000Z",
+      "createdAt": "2026-10-02T16:34:37.931Z",
+      "termsAndConditionsUrl": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+      "priceIncrement": "0.01",
+      "priceMinimum": "0.01",
+      "quantityIncrement": "0.01",
+      "quantityMinimum": "0.01",
+      "quoteAssetPrecision": 2,
+      "isCombo": false,
+      "description": {
+       "data": {},
+       "content": [
+        {
+         "data": {},
+         "marks": [],
+         "value": "If the Federal Reserve increases rates by more than 25bps on December 9, 2026, then the market resolves to Yes. Otherwise, it resolves to No. Outcome verified from the Federal Reserve. This market is mutually exclusive. Therefore, only one bucket, at maximum, can resolve to Yes. If the scheduled December 8–9 FOMC meeting is canceled and does not occur on its scheduled dates, then the strike for “Fed maintains rate” will resolve to Yes and all others will resolve to No. View the full [rules](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa739111ce4d14031b8fa642d703f6417?alt=media\\&token=018dc0da-fca8-43f8-a4c4-6d0dde135f95\\&apiKey=1b77ce3a269a43e985e77f3d65f715ba)",
+         "nodeType": "text"
+        }
+       ],
+       "nodeType": "document"
+      }
+     },
+     {
+      "id": "301111-735866",
+      "label": "Fed maintains rate",
+      "ticker": "MAINTAIN",
+      "instrumentSymbol": "GEMI-FED261211-MAINTAIN",
+      "status": "active",
+      "marketState": "open",
+      "prices": {
+       "buy": {
+        "yes": "0.06",
+        "no": "0.99"
+       },
+       "sell": {
+        "yes": "0.01",
+        "no": "0.94"
+       },
+       "bestBid": "0.01",
+       "bestAsk": "0.06",
+       "lastTradePrice": "0.05"
+      },
+      "expiryDate": "2026-12-11T05:00:00.000Z",
+      "effectiveDate": "2026-10-02T16:40:00.000Z",
+      "createdAt": "2026-10-02T16:34:37.931Z",
+      "termsAndConditionsUrl": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+      "priceIncrement": "0.01",
+      "priceMinimum": "0.01",
+      "quantityIncrement": "0.01",
+      "quantityMinimum": "0.01",
+      "quoteAssetPrecision": 2,
+      "isCombo": false,
+      "description": {
+       "data": {},
+       "content": [
+        {
+         "data": {},
+         "marks": [],
+         "value": "If the Federal Reserve maintains rates on December 9, 2026, then the market resolves to Yes. Otherwise, it resolves to No. Outcome verified from the Federal Reserve. This market is mutually exclusive. Therefore, only one bucket, at maximum, can resolve to Yes. If the scheduled December 8–9 FOMC meeting is canceled and does not occur on its scheduled dates, then this market resolves to Yes and all others resolve to No. View the full [rules](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa739111ce4d14031b8fa642d703f6417?alt=media\\&token=018dc0da-fca8-43f8-a4c4-6d0dde135f95\\&apiKey=1b77ce3a269a43e985e77f3d65f715ba)",
+         "nodeType": "text"
+        }
+       ],
+       "nodeType": "document"
+      }
+     },
+     {
+      "id": "301111-735863",
+      "label": "Cut >25bps",
+      "ticker": "CUTGT25",
+      "instrumentSymbol": "GEMI-FED261211-CUTGT25",
+      "status": "active",
+      "marketState": "open",
+      "prices": {
+       "buy": {
+        "yes": "0.03",
+        "no": "0.97"
+       },
+       "sell": {
+        "yes": "0.03",
+        "no": "0.97"
+       },
+       "bestAsk": "0.03",
+       "lastTradePrice": "0.03"
+      },
+      "expiryDate": "2026-12-11T05:00:00.000Z",
+      "effectiveDate": "2026-10-02T16:40:00.000Z",
+      "createdAt": "2026-10-02T16:34:37.931Z",
+      "termsAndConditionsUrl": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+      "priceIncrement": "0.01",
+      "priceMinimum": "0.01",
+      "quantityIncrement": "0.01",
+      "quantityMinimum": "0.01",
+      "quoteAssetPrecision": 2,
+      "isCombo": false,
+      "description": {
+       "data": {},
+       "content": [
+        {
+         "data": {},
+         "marks": [],
+         "value": "If the Federal Reserve decreases rates by more than 25bps on December 9, 2026, then the market resolves to Yes. Otherwise, it resolves to No. Outcome verified from the Federal Reserve. This market is mutually exclusive. Therefore, only one bucket, at maximum, can resolve to Yes. If the scheduled December 8–9 FOMC meeting is canceled and does not occur on its scheduled dates, then the strike for “Fed maintains rate” will resolve to Yes and all others will resolve to No. View the full [rules](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa739111ce4d14031b8fa642d703f6417?alt=media\\&token=018dc0da-fca8-43f8-a4c4-6d0dde135f95\\&apiKey=1b77ce3a269a43e985e77f3d65f715ba)",
+         "nodeType": "text"
+        }
+       ],
+       "nodeType": "document"
+      }
+     },
+     {
+      "id": "301111-735864",
+      "label": "Cut 25bps",
+      "ticker": "CUT25",
+      "instrumentSymbol": "GEMI-FED261211-CUT25",
+      "status": "active",
+      "marketState": "open",
+      "prices": {
+       "buy": {
+        "yes": "0.03",
+        "no": "0.97"
+       },
+       "sell": {
+        "yes": "0.03",
+        "no": "0.97"
+       },
+       "bestAsk": "0.03",
+       "lastTradePrice": "0.03"
+      },
+      "expiryDate": "2026-12-11T05:00:00.000Z",
+      "effectiveDate": "2026-10-02T16:40:00.000Z",
+      "createdAt": "2026-10-02T16:34:37.931Z",
+      "termsAndConditionsUrl": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+      "priceIncrement": "0.01",
+      "priceMinimum": "0.01",
+      "quantityIncrement": "0.01",
+      "quantityMinimum": "0.01",
+      "quoteAssetPrecision": 2,
+      "isCombo": false,
+      "description": {
+       "data": {},
+       "content": [
+        {
+         "data": {},
+         "marks": [],
+         "value": "If the Federal Reserve decreases rates by 25bps on December 9, 2026, then the market resolves to Yes. Otherwise, it resolves to No. Outcome verified from the Federal Reserve. This market is mutually exclusive. Therefore, only one bucket, at maximum, can resolve to Yes. If the scheduled December 8–9 FOMC meeting is canceled and does not occur on its scheduled dates, then the strike for “Fed maintains rate” will resolve to Yes and all others will resolve to No. View the full [rules](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa739111ce4d14031b8fa642d703f6417?alt=media\\&token=018dc0da-fca8-43f8-a4c4-6d0dde135f95\\&apiKey=1b77ce3a269a43e985e77f3d65f715ba)",
+         "nodeType": "text"
+        }
+       ],
+       "nodeType": "document"
+      }
+     }
+    ]
+   }
+  },
+  "order_book": {
+   "url": "https://api.gemini.com/v1/book/GEMI-FED261211-HIKE25?limit_bids=10&limit_asks=10",
+   "requested_at_utc": "2026-11-20T09:10:42.619Z",
+   "response": {
+    "bids": [
+     {
+      "price": "0.89",
+      "amount": "449.0",
+      "timestamp": "1795165842"
+     },
+     {
+      "price": "0.86",
+      "amount": "116.27",
+      "timestamp": "1795165842"
+     },
+     {
+      "price": "0.83",
+      "amount": "361.44",
+      "timestamp": "1795165842"
+     },
+     {
+      "price": "0.81",
+      "amount": "246.91",
+      "timestamp": "1795165842"
+     },
+     {
+      "price": "0.76",
+      "amount": "131.57",
+      "timestamp": "1795165842"
+     },
+     {
+      "price": "0.75",
+      "amount": "399.99",
+      "timestamp": "1795165842"
+     }
+    ],
+    "asks": [
+     {
+      "price": "0.93",
+      "amount": "25.0",
+      "timestamp": "1795165842"
+     },
+     {
+      "price": "0.94",
+      "amount": "6666.0",
+      "timestamp": "1795165842"
+     },
+     {
+      "price": "0.95",
+      "amount": "120.0",
+      "timestamp": "1795165842"
+     }
+    ]
+   },
+   "_source_timestamps_utc": [
+    "2026-11-20T09:10:42Z"
+   ]
+  },
+  "pubticker": {
+   "url": "https://api.gemini.com/v1/pubticker/GEMI-FED261211-HIKE25",
+   "requested_at_utc": "2026-11-20T09:10:42.781Z",
+   "response": {
+    "bid": "0.8900",
+    "ask": "0.9300",
+    "last": "0.9300",
+    "volume": {
+     "GEMI-FED261211-HIKE25": "0",
+     "USD": "0",
+     "timestamp": 1795165800000
+    }
+   },
+   "_volume_timestamp_utc": "2026-11-20T09:10:00+00:00"
+  },
+  "trades": {
+   "url": "https://api.gemini.com/v1/trades/GEMI-FED261211-HIKE25?limit_trades=10",
+   "requested_at_utc": "2026-11-20T09:10:42.953Z",
+   "response": [
+    {
+     "timestamp": 1794867972,
+     "timestampms": 1794867972130,
+     "tid": 1893456013526715,
+     "price": "0.93",
+     "amount": "1",
+     "exchange": "gemini",
+     "type": "buy"
+    },
+    {
+     "timestamp": 1794776409,
+     "timestampms": 1794776409259,
+     "tid": 1893456013495087,
+     "price": "0.85",
+     "amount": "109",
+     "exchange": "gemini",
+     "type": "sell"
+    },
+    {
+     "timestamp": 1794776409,
+     "timestampms": 1794776409259,
+     "tid": 1893456013495086,
+     "price": "0.85",
+     "amount": "109",
+     "exchange": "gemini",
+     "type": "buy"
+    },
+    {
+     "timestamp": 1794596128,
+     "timestampms": 1794596128402,
+     "tid": 1893456013417538,
+     "price": "0.9",
+     "amount": "83.85",
+     "exchange": "gemini",
+     "type": "buy"
+    },
+    {
+     "timestamp": 1794596128,
+     "timestampms": 1794596128402,
+     "tid": 1893456013417537,
+     "price": "0.1",
+     "amount": "83.85",
+     "exchange": "gemini",
+     "type": "buy"
+    },
+    {
+     "timestamp": 1794539423,
+     "timestampms": 1794539423407,
+     "tid": 1893456013401283,
+     "price": "0.88",
+     "amount": "3.37",
+     "exchange": "gemini",
+     "type": "buy"
+    }
+   ],
+   "_trimmed_trades": 4
+  }
+ },
+ "selected_contract": {
+  "symbol": "GEMI-FED261211-HIKE25",
+  "event_ticker": "FED261211",
+  "event_title": "Fed decision in December?",
+  "contract_label": "Hike 25bps",
+  "rules_text": "If the Federal Reserve increases rates by 25bps on December 9, 2026, then the market resolves to Yes. Otherwise, it resolves to No. Outcome verified from the Federal Reserve. This market is mutually exclusive. Therefore, only one bucket, at maximum, can resolve to Yes. If the scheduled December 8–9 FOMC meeting is canceled and does not occur on its scheduled dates, then the strike for “Fed maintains rate” will resolve to Yes and all others will resolve to No. View the full [rules](https://cdn.builder.io/o/assets%2F1b77ce3a269a43e985e77f3d65f715ba%2Fa739111ce4d14031b8fa642d703f6417?alt=media\\&token=018dc0da-fca8-43f8-a4c4-6d0dde135f95\\&apiKey=1b77ce3a269a43e985e77f3d65f715ba)",
+  "terms_pdf": "https://assets.gemini.com/predictions/terms_and_conditions/Gemini_402_Product_Filing_-_FEDDEC_-_20251211_6927e3ff-608d-4f76-98c4-f16ad6402cc6.pdf",
+  "resolution_source": "Federal Reserve (official website / FOMC statement), per contract text and FEDDEC 40.2 filing (Source Agency = official website of the Federal Reserve System)",
+  "expiryDate_utc": "2026-12-11T05:00:00.000Z",
+  "marketState": "open",
+  "rest_prices": {
+   "buy": {
+    "yes": "0.93",
+    "no": "0.11"
+   },
+   "sell": {
+    "yes": "0.89",
+    "no": "0.07"
+   },
+   "bestBid": "0.89",
+   "bestAsk": "0.93",
+   "lastTradePrice": "0.93"
+  },
+  "best_bid": {
+   "price": "0.89",
+   "amount": "449.0",
+   "timestamp": "1795165842"
+  },
+  "best_ask": {
+   "price": "0.93",
+   "amount": "25.0",
+   "timestamp": "1795165842"
+  },
+  "depth_bids_qty_total": "1705.18",
+  "depth_asks_qty_total": "6811.0",
+  "book_source_timestamp_utc": [
+   "2026-11-20T09:10:42Z"
+  ],
+  "book_retrieved_at_utc": "2026-11-20T09:10:42.619Z"
+ }
+}
