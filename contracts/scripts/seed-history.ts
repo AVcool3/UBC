@@ -31,7 +31,8 @@ import type { GhostCheckout } from "../target/types/ghost_checkout";
 import { configPda, getProgram, getProvider, loadOrCreateKeypair, pda, sellerPda } from "./common";
 
 // Targets. Change these to make the story stronger or weaker.
-const TARGET_COMPLETED: Record<string, number> = { "seller-glow.json": 11, "seller-gadget.json": 6 };
+// High enough that a few demo disputes (each one is a "lost" for the seller) keep them above 90%.
+const TARGET_COMPLETED: Record<string, number> = { "seller-glow.json": 30, "seller-gadget.json": 20 };
 const TARGET_FLASH_REFUNDS = 2; // "bad" needs at least 2 bad outcomes (see frontend lib/trust.ts)
 const ORDERS_PER_BUYER = 6;
 // Pause after each transaction. The free devnet RPC rate-limits bursts; lower this with a private RPC.
