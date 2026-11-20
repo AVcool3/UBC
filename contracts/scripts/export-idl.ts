@@ -12,6 +12,6 @@ const root = path.join(__dirname, "..");
 const dest = path.join(root, "..", "frontend", "src", "idl");
 fs.mkdirSync(dest, { recursive: true });
 
-fs.copyFileSync(path.join(root, "target/idl/ghost_checkout.json"), path.join(dest, "ghost_checkout.json"));
-fs.copyFileSync(path.join(root, "target/types/ghost_checkout.ts"), path.join(dest, "ghost_checkout.ts"));
+fs.copyFileSync(path.join(root, "target/idl/held_quote.json"), path.join(dest, "held_quote.json"));
+fs.copyFileSync(path.join(root, "target/types/held_quote.ts"), path.join(dest, "held_quote.ts"));
 console.log(`IDL + types copied to ${dest}`);

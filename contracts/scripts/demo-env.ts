@@ -5,7 +5,7 @@
  *
  *   npm run demo-env
  *
- * Run after init-config (with USDC_MINT=create) and seed-demo.
+ * Run after seed-market.
  * These are TEST-NETWORK keys only. Never reuse them for real funds.
  */
 import fs from "fs";
@@ -26,20 +26,17 @@ function main() {
   const cluster = isLocal(rpc) ? "localnet" : rpc.includes("devnet") ? "devnet" : "mainnet-beta";
   const adminFile = process.env.ANCHOR_WALLET ?? path.join(os.homedir(), ".config", "solana", "id.json");
 
-  // Demo sellers that ship on autopilot. FlashDeals99 is left out on purpose:
-  // it never ships, so visitors can see the automatic refund.
-  const sellers = `[${read("seller-glow.json")},${read("seller-gadget.json")}]`;
-
+  // Program, market and mints are pinned in frontend/src/deployment.json (written by
+  // seed-market), so only the RPC and the server-side demo keys go in the environment.
   const lines = [
     `NEXT_PUBLIC_SOLANA_RPC_URL=${rpc}`,
     `NEXT_PUBLIC_SOLANA_CLUSTER=${cluster}`,
-    `NEXT_PUBLIC_PROGRAM_ID=${program.programId.toBase58()}`,
     `NEXT_PUBLIC_DEMO_MODE=true`,
     `DEMO_FAUCET_KEY=${read("faucet.json")}`,
-    `DEMO_CARRIER_KEY=${read("carrier.json")}`,
-    `DEMO_SELLER_KEYS=${sellers}`,
+    `DEMO_MAKER_KEY=${read("seller-glow.json")}`,
     `DEMO_ARBITER_KEY=${JSON.stringify(JSON.parse(fs.readFileSync(adminFile, "utf8")))}`,
   ];
+  void program;
   const out = path.join(KEYS_DIR, "vercel.env");
   fs.writeFileSync(out, lines.join("\n") + "\n", { mode: 0o600 });
   console.log(`Wrote ${out}\n`);

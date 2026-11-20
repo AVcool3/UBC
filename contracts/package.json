@@ -1,13 +1,10 @@
 {
-  "name": "ghost-checkout-contracts",
+  "name": "held-price-contracts",
   "private": true,
-  "description": "Anchor program, tests and deploy scripts for Ghost Checkout",
+  "description": "Anchor program, tests and deploy scripts for Held Price",
   "scripts": {
-    "test": "anchor test",
-    "init-config": "tsx scripts/init-config.ts",
-    "seed-demo": "tsx scripts/seed-demo.ts",
-    "seed-history": "tsx scripts/seed-history.ts",
-    "test-blink": "tsx scripts/test-blink.ts",
+    "test": "NODE_OPTIONS=--no-experimental-strip-types anchor test",
+    "seed-market": "tsx scripts/seed-market.ts",
     "export-idl": "tsx scripts/export-idl.ts",
     "demo-env": "tsx scripts/demo-env.ts",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
