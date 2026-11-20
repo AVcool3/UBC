@@ -1,39 +1,45 @@
-/** Small display helpers. */
+/**
+ * Units and display helpers. Keep three units distinct:
+ *   - collateral base units (integers, 1_000_000 = $1.00)
+ *   - dollars per share (what the UI shows: "$0.62")
+ *   - shares (whole numbers)
+ */
 import { BN } from "@coral-xyz/anchor";
 import { PublicKey } from "@solana/web3.js";
-import { USDC_DECIMALS } from "./contracts";
+import { COLLATERAL_DECIMALS } from "./contracts";
 
-/** USDC base units (BN or number) → "$12.50". */
-export function usd(amount: BN | number | bigint): string {
-  const n = typeof amount === "number" ? amount : Number(amount.toString());
-  return `$${(n / 10 ** USDC_DECIMALS).toFixed(2)}`;
+const toNum = (v: BN | number | bigint) => (typeof v === "number" ? v : Number(v.toString()));
+
+/** Base units → "$12.40". Exact: our amounts stay far below 2^53. */
+export function usd(amount: BN | number | bigint, decimals = 2): string {
+  return `$${(toNum(amount) / 10 ** COLLATERAL_DECIMALS).toFixed(decimals)}`;
 }
 
-/** "$12.50" / "12.5" → base units. Returns null if invalid. */
-export function parseUsd(input: string): BN | null {
-  const clean = input.replace(/[$,\s]/g, "");
-  if (!/^\d+(\.\d{0,6})?$/.test(clean)) return null;
-  const [whole, frac = ""] = clean.split(".");
-  const units = new BN(whole).mul(new BN(10 ** USDC_DECIMALS)).add(new BN(frac.padEnd(USDC_DECIMALS, "0")));
-  return units.isZero() ? null : units;
+/** Fee math — identical to state.rs `hold_fee`: ceil(rate × qty × secs / 60), rounded up. */
+export function holdFee(holdRate: number, qty: number, holdSecs: number): number {
+  return Math.ceil((holdRate * qty * holdSecs) / 60);
 }
+
+/** Fees can be fractions of a cent; show 4 decimals when needed so they never look free. */
+export const usdFee = (base: number) => (base > 0 && base % 10_000 !== 0 ? `$${(base / 1e6).toFixed(4)}` : usd(base));
 
 export const short = (key: PublicKey | string, n = 4) => {
   const s = typeof key === "string" ? key : key.toBase58();
   return `${s.slice(0, n)}…${s.slice(-n)}`;
 };
 
-/** Human, anonymous order code shown to sellers instead of a name. */
-export const orderCode = (order: PublicKey) => `#${order.toBase58().slice(0, 6).toUpperCase()}`;
+/** "0:24" from seconds. */
+export const clock = (secs: number) => {
+  const s = Math.max(0, Math.floor(secs));
+  return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, "0")}`;
+};
 
-/** "in 4m 12s" / "3m ago" relative to now (both in unix seconds). */
-export function relative(targetSecs: number, nowSecs: number): string {
-  const diff = targetSecs - nowSecs;
-  const abs = Math.abs(diff);
-  const d = Math.floor(abs / 86400);
-  const h = Math.floor((abs % 86400) / 3600);
-  const m = Math.floor((abs % 3600) / 60);
-  const s = Math.floor(abs % 60);
-  const txt = d ? `${d}d ${h}h` : h ? `${h}h ${m}m` : m ? `${m}m ${s}s` : `${s}s`;
-  return diff >= 0 ? `in ${txt}` : `${txt} ago`;
+/** "4s ago" / "3m ago". */
+export function ago(secs: number): string {
+  const s = Math.max(0, Math.round(secs));
+  if (s < 60) return `${s}s ago`;
+  if (s < 3600) return `${Math.floor(s / 60)}m ago`;
+  return `${Math.floor(s / 3600)}h ago`;
 }
+
+export const asNumber = toNum;

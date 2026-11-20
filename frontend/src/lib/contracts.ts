@@ -1,35 +1,43 @@
 /**
- * Typed contract config — the one place the frontend learns where the program
- * lives. Paste your deployed program ID into .env.local (NEXT_PUBLIC_PROGRAM_ID)
- * and everything else is read from the chain (USDC mint, carrier key, windows).
+ * Every public identifier the app uses, in one place.
+ *
+ * Program, market, maker and mints are PINNED from src/deployment.json (written
+ * by `npm run seed-market` in /contracts). They can be overridden with the
+ * NEXT_PUBLIC_HELD_* env vars, but by default a build always points at the
+ * exact accounts it was tested against. Nothing here is secret.
  */
 import { PublicKey } from "@solana/web3.js";
-import idlJson from "@/idl/ghost_checkout.json";
-import type { GhostCheckout } from "@/idl/ghost_checkout";
+import deployment from "@/deployment.json";
+import idlJson from "@/idl/held_quote.json";
+import type { HeldQuote } from "@/idl/held_quote";
 
 export type Cluster = "devnet" | "localnet" | "mainnet-beta";
 
 export const RPC_URL = process.env.NEXT_PUBLIC_SOLANA_RPC_URL || "https://api.devnet.solana.com";
-export const CLUSTER = (process.env.NEXT_PUBLIC_SOLANA_CLUSTER || "devnet") as Cluster;
+export const CLUSTER = (process.env.NEXT_PUBLIC_SOLANA_CLUSTER || deployment.cluster) as Cluster;
 
-/** Program ID: env override, otherwise the address baked into the IDL by `anchor build`. */
-export const PROGRAM_ID = new PublicKey(process.env.NEXT_PUBLIC_PROGRAM_ID || idlJson.address);
+const pk = (envValue: string | undefined, pinned: string) => new PublicKey(envValue || pinned);
 
-/** The IDL with its address swapped to PROGRAM_ID, ready for `new Program(IDL, provider)`. */
-export const IDL = { ...idlJson, address: PROGRAM_ID.toBase58() } as GhostCheckout;
+export const PROGRAM_ID = pk(process.env.NEXT_PUBLIC_HELD_PROGRAM_ID, deployment.programId);
+export const MARKET = pk(process.env.NEXT_PUBLIC_HELD_MARKET, deployment.market);
+export const MAKER = pk(process.env.NEXT_PUBLIC_HELD_MAKER, deployment.maker);
+export const COLLATERAL_MINT = pk(process.env.NEXT_PUBLIC_HELD_COLLATERAL_MINT, deployment.collateralMint);
 
-export const USDC_DECIMALS = 6;
+/** The IDL with its address set to PROGRAM_ID, ready for `new Program(IDL, provider)`. */
+export const IDL = { ...idlJson, address: PROGRAM_ID.toBase58() } as HeldQuote;
 
-/** Where to get test USDC for the current cluster. */
-export const USDC_FAUCET_HINT =
-  CLUSTER === "devnet"
-    ? "Get free devnet USDC at faucet.circle.com (choose Solana Devnet)."
-    : CLUSTER === "localnet"
-      ? "Run: npx tsx scripts/faucet.ts <your-wallet> in /contracts."
-      : "Fund your wallet with USDC.";
+/** Display-only reference market (never executable here). */
+export const REFERENCE = deployment.reference;
+/** Real example transactions captured when the demo was seeded (for the wallet-free receipt path). */
+export const EXAMPLES = deployment.examples;
+
+// Units — must match contracts/programs/held_quote/src/state.rs.
+export const COLLATERAL_DECIMALS = 6;
+export const SHARE_UNIT = 1_000_000; // $1.00 per complete set
+export const PRICE_TICK = 10_000; // $0.01
 
 // ---------------------------------------------------------------------------
-// Solana Explorer links
+// Solana Explorer links (cluster always explicit, so a devnet link never opens mainnet)
 // ---------------------------------------------------------------------------
 function clusterQuery(): string {
   if (CLUSTER === "mainnet-beta") return "";

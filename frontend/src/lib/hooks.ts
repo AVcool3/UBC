@@ -1,21 +1,24 @@
 "use client";
 /**
- * Data hooks. Each one reads accounts straight from the chain and re-polls
- * every few seconds, so dashboards stay live without a backend or indexer.
+ * Data hooks. Everything is read straight from the chain (no backend, no
+ * indexer), so the page rebuilds itself correctly after a refresh.
  */
 import { useConnection } from "@solana/wallet-adapter-react";
 import { PublicKey } from "@solana/web3.js";
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { GhostProgram } from "./program";
-import { configPda, sellerPda, usdcAta } from "./pda";
-import type { ConfigAccount, ListingAccount, OrderAccount, SellerAccount, WithKey } from "./types";
+import { COLLATERAL_MINT, MAKER, MARKET } from "./contracts";
+import type { HeldProgram } from "./core";
+import { ata, poolPda } from "./pda";
+import type { ReferenceQuote } from "./reference";
+import { HOLD_BUYER_OFFSET, type HoldAccount, type MarketAccount, type PoolAccount, type WithKey } from "./types";
 
-const POLL_MS = 8000;
+const POLL_MS = 5_000;
 
-/** Window event fired after every confirmed transaction. */
-export const CHAIN_CHANGED_EVENT = "ghost-checkout:chain-changed";
+/** Window event fired after every transaction stage change, so every hook refreshes together. */
+export const CHAIN_CHANGED_EVENT = "held:chain-changed";
+export const announceChainChange = () => window.dispatchEvent(new Event(CHAIN_CHANGED_EVENT));
 
-/** Generic "load now, then every N ms" hook with a manual refresh(). */
+/** Generic "load now, then every N ms" hook with refresh() and error state. */
 export function usePolling<T>(load: (() => Promise<T>) | null, deps: unknown[], intervalMs = POLL_MS) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
@@ -32,6 +35,7 @@ export function usePolling<T>(load: (() => Promise<T>) | null, deps: unknown[], 
       setData(await loadRef.current());
       setError(null);
     } catch (e) {
+      // Keep showing the last good data; the UI marks it as possibly out of date.
       setError((e as Error)?.message ?? String(e));
     } finally {
       setLoading(false);
@@ -42,8 +46,6 @@ export function usePolling<T>(load: (() => Promise<T>) | null, deps: unknown[], 
     setLoading(true);
     refresh();
     const t = setInterval(refresh, intervalMs);
-    // Any confirmed transaction (see tx.ts) tells every hook to re-read the chain now,
-    // so balances and statuses everywhere on the page update together.
     window.addEventListener(CHAIN_CHANGED_EVENT, refresh);
     return () => {
       clearInterval(t);
@@ -55,79 +57,98 @@ export function usePolling<T>(load: (() => Promise<T>) | null, deps: unknown[], 
   return { data, loading, error, refresh };
 }
 
-/** Marketplace settings (USDC mint, carrier keys, time windows). null = not initialized yet. */
-export function useConfig(program: GhostProgram) {
-  return usePolling<ConfigAccount | null>(() => program.account.config.fetchNullable(configPda()), [program], 60_000);
+export interface VenueState {
+  market: PublicKey;
+  marketData: MarketAccount;
+  pool: PublicKey;
+  poolData: PoolAccount;
+  /** YES shares actually sitting in the pool vault (should equal available + reserved). */
+  vaultShares: number;
+  /** When we read it (local ms). */
+  readAt: number;
 }
 
-/** All listings + all seller profiles (keyed by seller wallet) for the feed. */
-export function useMarket(program: GhostProgram) {
-  return usePolling(async () => {
-    const [listings, sellers] = await Promise.all([program.account.listing.all(), program.account.seller.all()]);
-    const byAuthority = new Map<string, WithKey<SellerAccount>>();
-    sellers.forEach((s) => byAuthority.set(s.account.authority.toBase58(), s));
-    listings.sort((a, b) => b.account.createdAt.toNumber() - a.account.createdAt.toNumber());
-    return { listings: listings as WithKey<ListingAccount>[], sellers: byAuthority };
-  }, [program]);
-}
-
-// Byte offsets of fields inside an Order account (8-byte discriminator first).
-// Used to ask the RPC for only the orders we care about.
-const ORDER_BUYER_OFFSET = 8;
-const ORDER_SELLER_OFFSET = 8 + 32;
-
-/** Orders filtered by buyer or seller wallet, or every order ("all"), newest first. */
-export function useOrders(program: GhostProgram, filter: { buyer: PublicKey } | { seller: PublicKey } | "all" | null) {
-  const key = filter === null ? "none" : filter === "all" ? "all" : "buyer" in filter ? `b:${filter.buyer}` : `s:${filter.seller}`;
-  return usePolling<WithKey<OrderAccount>[]>(
-    filter === null
-      ? null
-      : async () => {
-          const filters =
-            filter === "all"
-              ? []
-              : "buyer" in filter
-                ? [{ memcmp: { offset: ORDER_BUYER_OFFSET, bytes: filter.buyer.toBase58() } }]
-                : [{ memcmp: { offset: ORDER_SELLER_OFFSET, bytes: filter.seller.toBase58() } }];
-          const orders = await program.account.order.all(filters);
-          return orders.sort((a, b) => b.account.createdAt.toNumber() - a.account.createdAt.toNumber());
-        },
-    [program, key]
-  );
-}
-
-/** One seller's profile, or null if that wallet hasn't registered. */
-export function useSellerProfile(program: GhostProgram, authority: PublicKey | null) {
-  return usePolling<SellerAccount | null>(
-    authority ? () => program.account.seller.fetchNullable(sellerPda(authority)) : null,
-    [program, authority?.toBase58()]
-  );
-}
-
-/** USDC balance (base units) of a wallet. 0 if it has no USDC account yet. */
-export function useUsdcBalance(mint: PublicKey | null | undefined, owner: PublicKey | null | undefined) {
+/** The market + the maker's pool, read from chain. */
+export function useVenue(program: HeldProgram) {
   const { connection } = useConnection();
-  return usePolling<number>(
-    mint && owner
+  return usePolling<VenueState>(async () => {
+    const pool = poolPda(MARKET, MAKER);
+    const [marketData, poolData] = await Promise.all([program.account.market.fetch(MARKET), program.account.pool.fetch(pool)]);
+    const vault = await connection.getTokenAccountBalance(poolData.yesVault, "confirmed");
+    return { market: MARKET, marketData, pool, poolData, vaultShares: Number(vault.value.amount), readAt: Date.now() };
+  }, [program, connection]);
+}
+
+/** The connected buyer's holds in this pool, newest first. */
+export function useMyHolds(program: HeldProgram, buyer: PublicKey | null) {
+  return usePolling<WithKey<HoldAccount>[]>(
+    buyer
       ? async () => {
-          try {
-            const res = await connection.getTokenAccountBalance(usdcAta(mint, owner));
-            return Number(res.value.amount);
-          } catch {
-            return 0; // token account doesn't exist yet
-          }
+          const holds = await program.account.hold.all([{ memcmp: { offset: HOLD_BUYER_OFFSET, bytes: buyer.toBase58() } }]);
+          return holds.sort((a, b) => b.account.createdAt.toNumber() - a.account.createdAt.toNumber());
         }
       : null,
-    [connection, mint?.toBase58(), owner?.toBase58()]
+    [program, buyer?.toBase58()]
   );
 }
 
-/** Current unix time in seconds, ticking every second (for countdowns). */
-export function useNow(): number {
-  const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
+/** Test USDC and YES balances (base units / shares). 0 if the account doesn't exist yet. */
+export function useBalances(owner: PublicKey | null, yesMint: PublicKey | null) {
+  const { connection } = useConnection();
+  return usePolling<{ usdc: number; yes: number; sol: number }>(
+    owner
+      ? async () => {
+          const read = async (mint: PublicKey) => {
+            try {
+              return Number((await connection.getTokenAccountBalance(ata(mint, owner), "confirmed")).value.amount);
+            } catch {
+              return 0;
+            }
+          };
+          const [usdc, yes, sol] = await Promise.all([read(COLLATERAL_MINT), yesMint ? read(yesMint) : 0, connection.getBalance(owner, "confirmed")]);
+          return { usdc, yes, sol };
+        }
+      : null,
+    [connection, owner?.toBase58(), yesMint?.toBase58()]
+  );
+}
+
+/** Display-only reference quote from our server adapter. */
+export function useReference() {
+  return usePolling<ReferenceQuote>(async () => {
+    const res = await fetch("/api/reference", { cache: "no-store" });
+    if (!res.ok) throw new Error(`Reference unavailable (${res.status})`);
+    return (await res.json()) as ReferenceQuote;
+  }, [], 10_000);
+}
+
+/**
+ * Seconds since epoch on the CHAIN's clock (estimated). Expiry is decided by the
+ * chain's Clock, not this browser's, so countdowns use this offset-corrected time.
+ */
+export function useChainNow(): number {
+  const { connection } = useConnection();
+  const [offset, setOffset] = useState(0);
+  const [now, setNow] = useState(() => Date.now() / 1000);
   useEffect(() => {
-    const t = setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1000);
-    return () => clearInterval(t);
-  }, []);
-  return now;
+    let alive = true;
+    const sync = async () => {
+      try {
+        const slot = await connection.getSlot("confirmed");
+        const t = await connection.getBlockTime(slot);
+        if (alive && t) setOffset(t - Date.now() / 1000);
+      } catch {
+        /* keep the previous offset */
+      }
+    };
+    sync();
+    const s = setInterval(sync, 30_000);
+    const t = setInterval(() => setNow(Date.now() / 1000), 250);
+    return () => {
+      alive = false;
+      clearInterval(s);
+      clearInterval(t);
+    };
+  }, [connection]);
+  return now + offset;
 }

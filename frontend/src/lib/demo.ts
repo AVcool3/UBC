@@ -1,16 +1,16 @@
 /**
  * Demo-mode switches and the browser side of the demo API.
  *
- * Demo mode (NEXT_PUBLIC_DEMO_MODE=true) lets someone try the whole flow alone:
- *  - a no-install Demo Wallet,
- *  - a faucet that drops test USDC (and SOL for fees, silently),
- *  - "autopilot" buttons that play the seller, carrier and arbiter.
- * The on-chain rules are exactly the same; autopilot just signs as those roles.
+ * Demo mode (NEXT_PUBLIC_DEMO_MODE=true) lets someone try everything alone:
+ *  - a no-install Demo Wallet (key kept in this browser; devnet only),
+ *  - a faucet for test USDC (and SOL for fees),
+ *  - a clearly labelled "simulate a maker reprice" button.
+ * The on-chain rules are exactly the same as for any wallet.
  */
 export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
 
 /** Calls a /api/demo/* route; resolves to the transaction signature, throws a readable error. */
-export async function callDemo(path: "faucet" | "advance" | "arbiter", body: Record<string, unknown>): Promise<string> {
+export async function callDemo(path: "faucet" | "reprice", body: Record<string, unknown>): Promise<string> {
   const res = await fetch(`/api/demo/${path}`, {
     method: "POST",
     headers: { "content-type": "application/json" },

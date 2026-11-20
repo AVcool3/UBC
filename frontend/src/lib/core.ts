@@ -4,10 +4,10 @@
  */
 import { AnchorProvider, Program } from "@coral-xyz/anchor";
 import { Connection, Keypair, PublicKey, Transaction, VersionedTransaction } from "@solana/web3.js";
-import type { GhostCheckout } from "@/idl/ghost_checkout";
+import type { HeldQuote } from "@/idl/held_quote";
 import { IDL } from "./contracts";
 
-export type GhostProgram = Program<GhostCheckout>;
+export type HeldProgram = Program<HeldQuote>;
 
 /** The minimal wallet shape Anchor needs. */
 export interface SignerWallet {
@@ -16,7 +16,7 @@ export interface SignerWallet {
   signAllTransactions<T extends Transaction | VersionedTransaction>(txs: T[]): Promise<T[]>;
 }
 
-/** Wallet that signs with an in-memory keypair (operator consoles + demo autopilot). */
+/** Wallet that signs with an in-memory keypair (server-side demo routes). */
 export class KeypairWallet implements SignerWallet {
   constructor(readonly payer: Keypair) {}
   get publicKey() {
@@ -43,7 +43,7 @@ const READ_ONLY: SignerWallet = {
   },
 };
 
-export function makeProgram(connection: Connection, wallet?: SignerWallet): GhostProgram {
+export function makeProgram(connection: Connection, wallet?: SignerWallet): HeldProgram {
   const provider = new AnchorProvider(connection, wallet ?? READ_ONLY, { commitment: "confirmed" });
-  return new Program<GhostCheckout>(IDL, provider);
+  return new Program<HeldQuote>(IDL, provider);
 }

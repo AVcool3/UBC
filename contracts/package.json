@@ -7,7 +7,8 @@
     "seed-market": "tsx scripts/seed-market.ts",
     "export-idl": "tsx scripts/export-idl.ts",
     "demo-env": "tsx scripts/demo-env.ts",
-    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "set-terms": "tsx scripts/set-terms.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "0.32.1",

@@ -16,9 +16,9 @@ import {
 import { Keypair, type PublicKey } from "@solana/web3.js";
 
 export const DemoWalletName = "Demo Wallet (no install)" as WalletName<"Demo Wallet (no install)">;
-const STORAGE_KEY = "ghost-checkout-demo-wallet";
+const STORAGE_KEY = "held-demo-wallet";
 
-// Simple ghost icon (inline SVG so there are no extra files).
+// Simple icon (inline SVG so there are no extra files).
 const ICON =
   "data:image/svg+xml;base64," +
   (typeof btoa === "function"

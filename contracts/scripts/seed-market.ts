@@ -42,7 +42,7 @@ const CLOSE_TIME = Date.parse("2026-12-09T18:00:00Z") / 1000;
 const USDC_MINT = new PublicKey(process.env.USDC_MINT ?? "Crsx17TuZzj6Mna53EsSnLQRPfwXuSYnu3Z8kJvi3vfm");
 const SETS = 400; // complete sets the maker mints ($400 test USDC)
 const INVENTORY = 300; // YES shares the maker puts in custody
-const HOLD_RATE = 1_000; // $0.001 per share-minute (econ: normal-regime break-even ≈ $0.00124)
+const HOLD_RATE = 1_250; // $0.00125 per share-minute ≈ econ normal-regime break-even ($0.001242)
 const MAX_HOLD_SECS = 60;
 const USD = 1_000_000;
 

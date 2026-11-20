@@ -41,10 +41,20 @@ body {
   font-family: var(--font-sans) !important;
 }
 
-/* TikTok-style vertical snap feed. */
-.snap-feed {
-  scroll-snap-type: y mandatory;
+/* Receipt checks fade in one by one (only with motion-safe:, so reduced-motion users get them instantly). */
+@keyframes fadein {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
-.snap-feed > * {
-  scroll-snap-align: start;
+
+/* Visible keyboard focus everywhere. */
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
 }

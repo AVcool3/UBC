@@ -1,170 +1,88 @@
 /**
- * Every on-chain instruction the app sends, in one file.
- * Each function builds the exact account list the program expects and returns
- * the transaction signature. UI code calls these through `withToast(...)`.
+ * Builds every transaction the buyer can send. Each returns an unsigned
+ * Transaction; lib/send.ts simulates, gets it signed and tracks it.
+ *
+ * Account lists here mirror the #[derive(Accounts)] structs in
+ * contracts/programs/held_quote/src/instructions/trade.rs.
  */
 import { BN } from "@coral-xyz/anchor";
-import { PublicKey } from "@solana/web3.js";
-import type { GhostProgram } from "./core";
-import type { ConfigAccount, OrderAccount } from "./types";
-import { configPda, listingPda, orderPda, sellerPda, usdcAta } from "./pda";
+import { PublicKey, Transaction } from "@solana/web3.js";
+import type { HeldProgram } from "./core";
+import { ata, holdPda } from "./pda";
+import type { MarketAccount, PoolAccount } from "./types";
 
-// ---- Sellers ---------------------------------------------------------------
-
-export function registerSeller(program: GhostProgram, authority: PublicKey, name: string) {
-  return program.methods
-    .registerSeller(name)
-    .accountsPartial({ authority, seller: sellerPda(authority) })
-    .rpc();
+export interface Venue {
+  market: PublicKey;
+  marketData: MarketAccount;
+  pool: PublicKey;
+  poolData: PoolAccount;
 }
 
-export function createListing(
-  program: GhostProgram,
-  authority: PublicKey,
-  nextIndex: BN,
-  title: string,
-  imageUrl: string,
-  price: BN
-) {
-  const seller = sellerPda(authority);
-  return program.methods
-    .createListing(title, imageUrl, price)
-    .accountsPartial({ authority, seller, listing: listingPda(seller, nextIndex) })
-    .rpc();
+function buyerAccounts(v: Venue, buyer: PublicKey) {
+  return {
+    buyer,
+    market: v.market,
+    pool: v.pool,
+    yesMint: v.marketData.yesMint,
+    collateralMint: v.marketData.collateralMint,
+    yesVault: v.poolData.yesVault,
+    proceedsVault: v.poolData.proceedsVault,
+    buyerCollateral: ata(v.marketData.collateralMint, buyer),
+    buyerYes: ata(v.marketData.yesMint, buyer),
+  };
 }
 
-export function setListingActive(program: GhostProgram, authority: PublicKey, listing: PublicKey, active: boolean) {
-  return program.methods.setListingActive(active).accountsPartial({ authority, listing }).rpc();
+/** Optional cleanup: release the buyer's own expired holds first, so their shares are available again. */
+async function releaseIxs(program: HeldProgram, v: Venue, caller: PublicKey, expired: PublicKey[]) {
+  return Promise.all(
+    expired.slice(0, 3).map((hold) => program.methods.release().accountsPartial({ caller, pool: v.pool, hold }).instruction())
+  );
 }
 
-// ---- Buying ------------------------------------------------------------------
+/** Buy now: fills at the current ask if it is ≤ maxPrice, otherwise nothing happens. */
+export async function buyNowTx(program: HeldProgram, v: Venue, buyer: PublicKey, qty: number, maxPrice: number, expired: PublicKey[] = []) {
+  const ix = await program.methods.buyNow(new BN(qty), new BN(maxPrice)).accountsPartial(buyerAccounts(v, buyer)).instruction();
+  return new Transaction().add(...(await releaseIxs(program, v, buyer, expired)), ix);
+}
 
-/** Pays for `listing` into escrow. Returns { sig, order } so the UI can link to the new order. */
-export async function placeOrder(
-  program: GhostProgram,
-  config: ConfigAccount,
+/** Hold: pay the fee now, the current ask is frozen for `secs`. Returns the hold address too. */
+export async function holdTx(
+  program: HeldProgram,
+  v: Venue,
   buyer: PublicKey,
-  listing: PublicKey,
-  encryptedAddress: Uint8Array
+  qty: number,
+  secs: number,
+  maxPrice: number,
+  maxFee: number,
+  expired: PublicKey[] = []
 ) {
-  // Nonce = current time in ms; lets one buyer place many orders on one listing.
+  // Millisecond timestamp nonce: unique per buyer in practice, and a duplicate
+  // simply fails (the hold account already exists) — it can never double-reserve.
   const nonce = new BN(Date.now());
-  const order = orderPda(listing, buyer, nonce);
-  const sig = await program.methods
-    .placeOrder(nonce, Buffer.from(encryptedAddress))
+  const hold = holdPda(v.pool, buyer, nonce);
+  const ix = await program.methods
+    .hold(nonce, new BN(qty), secs, new BN(maxPrice), new BN(maxFee))
     .accountsPartial({
       buyer,
-      config: configPda(),
-      listing,
-      order,
-      usdcMint: config.usdcMint,
-      buyerToken: usdcAta(config.usdcMint, buyer),
-      vault: usdcAta(config.usdcMint, order),
+      market: v.market,
+      pool: v.pool,
+      hold,
+      collateralMint: v.marketData.collateralMint,
+      proceedsVault: v.poolData.proceedsVault,
+      buyerCollateral: ata(v.marketData.collateralMint, buyer),
     })
-    .rpc();
-  return { sig, order };
+    .instruction();
+  return { tx: new Transaction().add(...(await releaseIxs(program, v, buyer, expired)), ix), hold };
 }
 
-// ---- Seller fulfilment ------------------------------------------------------
-
-export function markShipped(program: GhostProgram, sellerAuthority: PublicKey, order: PublicKey, trackingHash: number[]) {
-  return program.methods.markShipped(trackingHash).accountsPartial({ sellerAuthority, order }).rpc();
+/** Exercise: pay the HELD price and receive the shares, atomically. */
+export async function exerciseTx(program: HeldProgram, v: Venue, buyer: PublicKey, hold: PublicKey) {
+  const ix = await program.methods.exercise().accountsPartial({ ...buyerAccounts(v, buyer), hold }).instruction();
+  return new Transaction().add(ix);
 }
 
-export function cancelOrder(program: GhostProgram, config: ConfigAccount, order: PublicKey, data: OrderAccount) {
-  return program.methods
-    .cancelOrder()
-    .accountsPartial({
-      sellerAuthority: data.sellerAuthority,
-      config: configPda(),
-      seller: sellerPda(data.sellerAuthority),
-      order,
-      buyer: data.buyer,
-      usdcMint: config.usdcMint,
-      buyerToken: usdcAta(config.usdcMint, data.buyer),
-      vault: usdcAta(config.usdcMint, order),
-    })
-    .rpc();
-}
-
-// ---- Refunds / release (callable by anyone when the rules allow) ------------
-
-export function refundUnshipped(
-  program: GhostProgram,
-  config: ConfigAccount,
-  caller: PublicKey,
-  order: PublicKey,
-  data: OrderAccount
-) {
-  return program.methods
-    .refundUnshipped()
-    .accountsPartial({
-      caller,
-      config: configPda(),
-      seller: sellerPda(data.sellerAuthority),
-      order,
-      buyer: data.buyer,
-      usdcMint: config.usdcMint,
-      buyerToken: usdcAta(config.usdcMint, data.buyer),
-      vault: usdcAta(config.usdcMint, order),
-    })
-    .rpc();
-}
-
-export function releasePayment(
-  program: GhostProgram,
-  config: ConfigAccount,
-  caller: PublicKey,
-  order: PublicKey,
-  data: OrderAccount
-) {
-  return program.methods
-    .releasePayment()
-    .accountsPartial({
-      caller,
-      config: configPda(),
-      seller: sellerPda(data.sellerAuthority),
-      order,
-      buyer: data.buyer,
-      sellerAuthority: data.sellerAuthority,
-      usdcMint: config.usdcMint,
-      sellerToken: usdcAta(config.usdcMint, data.sellerAuthority),
-      vault: usdcAta(config.usdcMint, order),
-    })
-    .rpc();
-}
-
-export function openDispute(program: GhostProgram, buyer: PublicKey, order: PublicKey) {
-  return program.methods.openDispute().accountsPartial({ buyer, order }).rpc();
-}
-
-// ---- Operators ----------------------------------------------------------------
-
-export function confirmDelivery(program: GhostProgram, carrier: PublicKey, order: PublicKey) {
-  return program.methods.confirmDelivery().accountsPartial({ carrier, config: configPda(), order }).rpc();
-}
-
-export function resolveDispute(
-  program: GhostProgram,
-  config: ConfigAccount,
-  admin: PublicKey,
-  order: PublicKey,
-  data: OrderAccount,
-  refundBuyer: boolean
-) {
-  return program.methods
-    .resolveDispute(refundBuyer)
-    .accountsPartial({
-      admin,
-      config: configPda(),
-      seller: sellerPda(data.sellerAuthority),
-      order,
-      buyer: data.buyer,
-      sellerAuthority: data.sellerAuthority,
-      usdcMint: config.usdcMint,
-      buyerToken: usdcAta(config.usdcMint, data.buyer),
-      sellerToken: usdcAta(config.usdcMint, data.sellerAuthority),
-      vault: usdcAta(config.usdcMint, order),
-    })
-    .rpc();
+/** Release: anyone can return an expired hold's shares to the pool. */
+export async function releaseTx(program: HeldProgram, v: Venue, caller: PublicKey, hold: PublicKey) {
+  const ix = await program.methods.release().accountsPartial({ caller, pool: v.pool, hold }).instruction();
+  return new Transaction().add(ix);
 }

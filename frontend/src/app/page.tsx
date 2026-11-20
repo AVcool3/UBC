@@ -1,118 +1,139 @@
 "use client";
 /**
- * Shop feed — every active listing on-chain, with each seller's verifiable
- * track record next to the Buy button.
+ * Home = the transaction. Above the fold: the question, the executable price
+ * and size, the choice (buy now / hold), and one primary action.
+ * Left column: the market's terms and the display-only reference price.
  */
 import Link from "next/link";
-import { useState } from "react";
-import { CheckoutModal } from "@/components/CheckoutModal";
-import { DemoBanner } from "@/components/DemoBanner";
-import { ProductArt } from "@/components/ProductArt";
-import { TrustChip, trustOf } from "@/components/SellerTrust";
-import { SetupNotice } from "@/components/SetupNotice";
-import { ShareBlinkModal } from "@/components/ShareBlink";
-import { Button, EmptyState, ErrorBlock, LoadingBlock } from "@/components/ui";
-import { short, usd } from "@/lib/format";
-import { useConfig, useMarket } from "@/lib/hooks";
-import { useGhostProgram } from "@/lib/program";
-import type { ListingAccount, WithKey } from "@/lib/types";
+import { ReferencePanel } from "@/components/ReferencePanel";
+import { Ticket } from "@/components/Ticket";
+import { EXAMPLES, explorerAddress, MARKET, PROGRAM_ID } from "@/lib/contracts";
+import { short } from "@/lib/format";
+import { useVenue } from "@/lib/hooks";
+import { useHeldProgram } from "@/lib/program";
 
-const PROMISES = [
-  { icon: "🕶️", title: "Seller never learns who you are", text: "No name, card, phone or readable address." },
-  { icon: "🔐", title: "Paid only on delivery", text: "USDC waits in escrow until the carrier delivers." },
-  { icon: "🧾", title: "Reviews that can't be faked", text: "Ratings come only from real, completed orders." },
-];
-
-export default function ShopPage() {
-  const { program } = useGhostProgram();
-  const config = useConfig(program);
-  const market = useMarket(program);
-  const [buying, setBuying] = useState<WithKey<ListingAccount> | null>(null);
-  const [sharing, setSharing] = useState<WithKey<ListingAccount> | null>(null);
-
-  const listings = market.data?.listings.filter((l) => l.account.active) ?? [];
+export default function TradePage() {
+  const { program } = useHeldProgram();
+  const venue = useVenue(program);
+  const m = venue.data?.marketData;
 
   return (
     <>
-      {/* ---- Hero ---- */}
-      <section className="mb-8 rounded-3xl border border-line bg-gradient-to-br from-accent-strong/25 via-surface to-surface p-6 sm:p-8">
-        <h1 className="max-w-2xl text-3xl font-extrabold tracking-tight sm:text-4xl">
-          Buy from anyone in your feed. <span className="text-accent">Reveal nothing.</span>
-        </h1>
-        <p className="mt-2 max-w-2xl text-muted">
-          Ghost Checkout is a private, escrowed checkout for social commerce, settled in USDC on Solana.
+      {/* Question first on every screen size. */}
+      <div className="mb-4">
+        <p className="text-xs font-semibold uppercase tracking-wide text-muted">
+          Binary market · YES pays $1 if it happens
         </p>
-        <div className="mt-6 grid gap-3 sm:grid-cols-3">
-          {PROMISES.map((p) => (
-            <div key={p.title} className="rounded-2xl bg-bg/50 p-4">
-              <div className="text-2xl">{p.icon}</div>
-              <div className="mt-1 font-semibold">{p.title}</div>
-              <div className="text-sm text-muted">{p.text}</div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <DemoBanner />
-      {config.data === null && !config.loading && <SetupNotice />}
-      {market.error && <ErrorBlock error={market.error} onRetry={market.refresh} />}
-      {market.loading && !market.data && <LoadingBlock />}
-
-      {market.data && listings.length === 0 && (
-        <EmptyState title="No listings yet">Open the Sell tab to list the first product.</EmptyState>
-      )}
-
-      {/* ---- Feed ---- */}
-      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-        {listings.map((l) => {
-          const seller = market.data?.sellers.get(l.account.sellerAuthority.toBase58())?.account;
-          const trust = seller ? trustOf(seller) : null;
-          const risky = trust?.level === "bad";
-          return (
-            <article key={l.publicKey.toBase58()} className="overflow-hidden rounded-3xl border border-line bg-surface">
-              <ProductArt title={l.account.title} imageUrl={l.account.imageUrl} className="aspect-[4/5] w-full lg:aspect-square" />
-              <div className="space-y-3 p-4">
-                <div className="flex items-start justify-between gap-3">
-                  {/* Title links to the shareable product page (/buy/<listing>). */}
-                  <Link href={`/buy/${l.publicKey.toBase58()}`} className="hover:underline">
-                    <h2 className="font-semibold leading-snug">{l.account.title}</h2>
-                  </Link>
-                  <span className="text-lg font-extrabold">{usd(l.account.price)}</span>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 text-sm text-muted">
-                  <span>{seller?.name ?? short(l.account.sellerAuthority)}</span>
-                  {seller && <TrustChip seller={seller} />}
-                </div>
-                {risky && (
-                  <p className="rounded-xl bg-bad/10 p-2 text-xs text-bad">
-                    ⚠ This seller failed to ship or lost a dispute on {trust!.bad} of {trust!.total} orders. If you buy,
-                    escrow still protects your money.
-                  </p>
-                )}
-                <div className="flex gap-2">
-                  <Button className="flex-1 py-3" onClick={() => setBuying(l)} disabled={!config.data}>
-                    Buy privately
-                  </Button>
-                  {/* Share this product as a Solana Blink (buy from inside a post). */}
-                  <Button variant="secondary" className="py-3" onClick={() => setSharing(l)} aria-label="Share as Blink" title="Share as Blink">
-                    Share ⚡
-                  </Button>
-                </div>
-              </div>
-            </article>
-          );
-        })}
+        <h1 className="mt-1 text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
+          {m?.question ?? "Loading market…"}
+        </h1>
       </div>
+      <div className="grid gap-6 lg:grid-cols-12">
+        {/* ---- Market (columns 1–7 on desktop) ---- */}
+        <div className="space-y-4 lg:col-span-7">
+          {m && (
+            <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-sm text-muted sm:grid-cols-2">
+              <div>
+                <dt className="inline">Trading closes: </dt>
+                <dd className="inline text-ink">
+                  {new Date(m.closeTime.toNumber() * 1000)
+                    .toUTCString()
+                    .replace(":00 GMT", " UTC")}
+                </dd>
+              </div>
+              <div>
+                <dt className="inline">Resolution: </dt>
+                <dd className="inline text-ink">{m.resolutionSource}</dd>
+              </div>
+              <div>
+                <dt className="inline">Shares: </dt>
+                <dd className="inline text-ink">
+                  {m.setsOutstanding.toString()} YES/NO sets, each backed by $1
+                  test USDC in program custody
+                </dd>
+              </div>
+              <div>
+                <dt className="inline">Market account: </dt>
+                <dd className="inline">
+                  <a
+                    className="font-mono text-accent underline"
+                    href={explorerAddress(MARKET.toBase58())}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    {short(MARKET)}
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          )}
+          <ReferencePanel />
 
-      {buying && config.data && (
-        <CheckoutModal
-          listing={buying}
-          seller={market.data?.sellers.get(buying.account.sellerAuthority.toBase58())?.account}
-          config={config.data}
-          onClose={() => setBuying(null)}
-        />
-      )}
-      {sharing && <ShareBlinkModal listing={sharing} onClose={() => setSharing(null)} />}
+          <section className="rounded-2xl border border-line bg-surface p-4 text-sm">
+            <h2 className="font-semibold">
+              What the chain guarantees when you hold
+            </h2>
+            <p className="mt-1 text-muted">
+              Your held shares sit in an account only the program can move.
+              Until the hold expires they can go to exactly one place: to you,
+              at the held price, in the same transaction as your payment. The
+              maker can&apos;t sell them to someone else, reprice them or
+              withdraw them, and there&apos;s no &quot;last look&quot;. After
+              expiry anyone can return them to the pool; nobody else can take
+              them.
+            </p>
+            <p className="mt-2 text-muted">
+              Is it worth the fee? Usually not in a calm market: our replay says
+              buying now is cheaper there. Holding pays off when the book is
+              thin or moving fast.{" "}
+              <Link className="text-accent underline" href="/evidence">
+                See the evidence
+              </Link>
+              .
+            </p>
+            <p className="mt-2 text-xs text-muted">
+              No wallet? Check a real devnet receipt first:{" "}
+              <Link
+                className="text-accent underline"
+                href={`/receipt/${EXAMPLES.holdExercised}`}
+              >
+                held price → bought
+              </Link>{" "}
+              ·{" "}
+              <Link
+                className="text-accent underline"
+                href={`/receipt/${EXAMPLES.buyNow}`}
+              >
+                bought now
+              </Link>{" "}
+              ·{" "}
+              <Link
+                className="text-accent underline"
+                href={`/receipt/${EXAMPLES.holdReleased}`}
+              >
+                hold expired → released
+              </Link>
+              . Program{" "}
+              <a
+                className="font-mono underline"
+                href={explorerAddress(PROGRAM_ID.toBase58())}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {short(PROGRAM_ID)}
+              </a>
+              .
+            </p>
+          </section>
+        </div>
+
+        {/* ---- Order ticket (columns 8–12 on desktop; first on mobile) ---- */}
+        <div className="order-first lg:order-none lg:col-span-5">
+          <div className="lg:sticky lg:top-20">
+            <Ticket />
+          </div>
+        </div>
+      </div>
     </>
   );
 }

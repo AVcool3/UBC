@@ -1,0 +1,26 @@
+{
+  "cluster": "devnet",
+  "programId": "32LnKdWnNk93W4C1pD4s3DjdTUAw4aGZZr6tbRMpw8e3",
+  "marketId": 1,
+  "market": "gnEJjx6joydxAyRvMGxHfdV26niTpyy46KwU4PvKzUd",
+  "maker": "2PuQK4hWFqmq8vLS8WcqVstZnayK7F7BdFn35QQ5HZkh",
+  "pool": "BQEGNeDdEnXLnsu97n8DfefFtDsJLDHQJ7NSM2Rtvunx",
+  "collateralMint": "Crsx17TuZzj6Mna53EsSnLQRPfwXuSYnu3Z8kJvi3vfm",
+  "yesMint": "9WH43cawNmfzBkrxqVj1VcseyeaVR5DJH92umNoWJ3NE",
+  "reference": {
+    "venue": "Gemini Predictions",
+    "symbol": "GEMI-FED261211-HIKE25",
+    "termsMatch": false,
+    "termsNote": "Same question. Different resolver (our devnet test admin) and settlement, so prices are shown side by side but never compared numerically."
+  },
+  "examples": {
+    "capturedAt": "2026-11-20T09:37:40.716Z",
+    "mode": "devnet (real transactions, test assets)",
+    "buyNow": "68uWKUeu6HU3U2NWzrUMNJ3Ne9FfASLoS7opQUyni9Dy9mYrEjp3Djy64VetH9gygT77DGFC6qgS8TLpTX4BSuv",
+    "holdCreated": "11EziAxfwjcVcXkPsMAAtAwPoDu5iXu9gxEHchQxqXoAtTuQ9sHU3FwtigZ7fHrAAvtuSJKnWn4nqbGck9o96m2",
+    "holdExercised": "hDLWb3vMbtnToRBeVA1SHgCKTrDVZuLqPUPC4S5S48Bv3bgXmLJabhHTLTk5TYPZ5U1mPwcWewXB9EFuMo78zSc",
+    "exercisedHold": "4j1mby9NSXo1ZbHQqDm83CPC7sXaGd9mv19EYBTaFQZs",
+    "holdReleased": "4ocHfkzwKFQEfPBbUzcwKBZGNe8wGxs44KiP3kGqkfK82KtiS9uCaH5SLG42ZuLtfLBxh8P7Edzc1woaMbkfUE6Q",
+    "releasedHold": "DFNSTqtusUbpaTZafAQuxNiGzKZ4w92EDZ4TWqwkiA8f"
+  }
+}
