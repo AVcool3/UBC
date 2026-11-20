@@ -59,3 +59,5 @@ Compact log so the run can resume after context compaction. Newest entries at th
 
 ## Evidence paths
 - docs/research/*.md (subagent reports), econ/ (harness, results, chart), contracts/tests, scratchpad screenshots.
+
+- 10:51 Vercel env vars added for Preview (5 vars: RPC, cluster, demo mode, faucet key, maker key). Rebuilding preview to pick them up.
