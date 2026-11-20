@@ -6,6 +6,8 @@
     "test": "anchor test",
     "init-config": "tsx scripts/init-config.ts",
     "seed-demo": "tsx scripts/seed-demo.ts",
+    "seed-history": "tsx scripts/seed-history.ts",
+    "test-blink": "tsx scripts/test-blink.ts",
     "export-idl": "tsx scripts/export-idl.ts",
     "demo-env": "tsx scripts/demo-env.ts",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check"
