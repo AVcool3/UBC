@@ -7,7 +7,13 @@
  *  - a clearly labelled "simulate a maker reprice" button.
  * The on-chain rules are exactly the same as for any wallet.
  */
-export const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+/**
+ * Tolerant on purpose: hosting dashboards make it easy to save `"true"`, `True`
+ * or `true ` (trailing space). Any of true/1/yes/on, with or without quotes, turns it on.
+ */
+export const isTruthyFlag = (v: string | undefined) => /^\s*["']?(true|1|yes|on)["']?\s*$/i.test(v ?? "");
+
+export const DEMO_MODE = isTruthyFlag(process.env.NEXT_PUBLIC_DEMO_MODE);
 
 /** Calls a /api/demo/* route; resolves to the transaction signature, throws a readable error. */
 export async function callDemo(path: "faucet" | "reprice", body: Record<string, unknown>): Promise<string> {

@@ -15,8 +15,10 @@ import { NextResponse } from "next/server";
 import { RPC_URL } from "../contracts";
 import { makeProgram, KeypairWallet } from "../core";
 import { friendlyServerError } from "./errors";
+import { isTruthyFlag } from "../demo";
 
-export const demoEnabled = () => process.env.NEXT_PUBLIC_DEMO_MODE === "true";
+// Same tolerant parsing as the browser side (see lib/demo.ts).
+export const demoEnabled = () => isTruthyFlag(process.env.NEXT_PUBLIC_DEMO_MODE);
 
 const parseKey = (json: string) => Keypair.fromSecretKey(Uint8Array.from(JSON.parse(json)));
 
