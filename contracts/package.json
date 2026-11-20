@@ -8,7 +8,9 @@
     "export-idl": "tsx scripts/export-idl.ts",
     "demo-env": "tsx scripts/demo-env.ts",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-    "set-terms": "tsx scripts/set-terms.ts"
+    "set-terms": "tsx scripts/set-terms.ts",
+    "restock": "tsx scripts/restock.ts",
+    "release-expired": "tsx scripts/release-expired.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "0.32.1",

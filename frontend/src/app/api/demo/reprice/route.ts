@@ -19,8 +19,11 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const STEP = 30_000; // $0.03
-const MIN_ASK = 50_000; // $0.05
-const MAX_ASK = 990_000; // $0.99
+// Anyone can press the demo button, so keep the maker's ask in a narrow band
+// around where it was seeded ($0.93 ± $0.06) instead of letting visitors walk it anywhere.
+const BASE_ASK = 930_000;
+const MIN_ASK = BASE_ASK - 60_000;
+const MAX_ASK = Math.min(990_000, BASE_ASK + 60_000);
 
 export async function POST(req: Request) {
   return demoRoute(async () => {
@@ -36,7 +39,7 @@ export async function POST(req: Request) {
     const pool = poolPda(MARKET, maker.publicKey);
     const p = await program.account.pool.fetch(pool);
     const ask = Math.min(MAX_ASK, Math.max(MIN_ASK, p.ask.toNumber() + (body.direction === "up" ? STEP : -STEP)));
-    if (ask === p.ask.toNumber()) throw new DemoError("The ask is already at its limit.");
+    if (ask === p.ask.toNumber()) throw new DemoError("The demo keeps the ask within $0.06 of $0.93; it's already at that limit.");
 
     const sig = await program.methods
       .setTerms({ ask: new BN(ask), holdRate: p.holdRate, maxHoldSecs: p.maxHoldSecs })

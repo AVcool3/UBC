@@ -37,6 +37,10 @@ import { Button } from "./ui";
 type Mode = "now" | "hold";
 const HOLD_CHOICES = [15, 30, 60];
 const MIN_SOL_LAMPORTS = 5_000_000; // ~0.005 SOL for fees + a hold account's rent
+/** Mirrors MAX_HOLD_QTY in state.rs: one hold can reserve at most this many shares. */
+const MAX_HOLD_QTY = 100;
+/** Rent for a Hold account (~0.0021 SOL). It stays locked: the account IS your receipt. */
+const HOLD_RENT_SOL = 0.0021;
 
 export function Ticket() {
   const { connection } = useConnection();
@@ -104,13 +108,11 @@ export function Ticket() {
     }
   }
 
-  const expiredKeys = (): PublicKey[] => expiredHeld.map((h) => h.publicKey);
-
   function buyNow() {
     if (!v || !buyer) return setVisible(true);
     setFrozen({ ask, qty, fee: 0, secs: 0, mode: "now" });
     const label = `${qty} YES bought at up to ${usd(effectiveMax)}`;
-    void run(label, () => buyNowTx(program, v, buyer, qty, effectiveMax, expiredKeys()));
+    void run(label, () => buyNowTx(program, v, buyer, qty, effectiveMax));
   }
 
   function hold() {
@@ -118,7 +120,7 @@ export function Ticket() {
     setFrozen({ ask, qty, fee, secs: holdSecs, mode: "hold" });
     const label = `Price held: ${qty} YES at ${usd(ask)} for ${holdSecs}s (fee ${usdFee(fee)})`;
     // max_price = the ask you saw, max_fee = the fee you saw: if either moved, nothing is charged.
-    void run(label, async () => (await holdTx(program, v, buyer, qty, holdSecs, ask, fee, expiredKeys())).tx);
+    void run(label, async () => (await holdTx(program, v, buyer, qty, holdSecs, ask, fee)).tx);
   }
 
   function exercise() {
@@ -177,6 +179,7 @@ export function Ticket() {
     if (!marketOpen) return { text: "Trading closed", onClick: () => {}, disabled: true };
     if (balances.data === null) return { text: "Checking your balance…", onClick: () => {}, disabled: true };
     if (notEnoughShares) return { text: `Only ${available} available`, onClick: () => {}, disabled: true };
+    if (mode === "hold" && qty > MAX_HOLD_QTY) return { text: `Hold at most ${MAX_HOLD_QTY} shares`, onClick: () => {}, disabled: true };
     if (mode === "now")
       return { text: `Buy ${qty} YES · up to ${usd(effectiveMax * qty)}`, onClick: buyNow, disabled: busy || shortOnFunds };
     return { text: `Hold ${usd(ask)} for ${holdSecs}s · fee ${usdFee(fee)}`, onClick: hold, disabled: busy || shortOnFunds };
@@ -325,8 +328,9 @@ export function Ticket() {
               </>
             ) : (
               <>
-                Now: fee <b>{usdFee(shown.fee)}</b> (kept by the maker either way). Later, if you buy: <b>{usd(totalNow)}</b> for {shown.qty} YES at{" "}
-                {usd(shown.ask)}, any time in the next {shown.secs}s.
+                Now: fee <b>{usdFee(shown.fee)}</b> (kept by the maker either way), plus about {HOLD_RENT_SOL} SOL of account rent that stays
+                locked in the on-chain receipt. Later, if you buy: <b>{usd(totalNow)}</b> for {shown.qty} YES at {usd(shown.ask)}, any time in the next{" "}
+                {shown.secs}s.
               </>
             )}
           </div>

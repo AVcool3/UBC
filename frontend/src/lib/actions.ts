@@ -32,17 +32,14 @@ function buyerAccounts(v: Venue, buyer: PublicKey) {
   };
 }
 
-/** Optional cleanup: release the buyer's own expired holds first, so their shares are available again. */
-async function releaseIxs(program: HeldProgram, v: Venue, caller: PublicKey, expired: PublicKey[]) {
-  return Promise.all(
-    expired.slice(0, 3).map((hold) => program.methods.release().accountsPartial({ caller, pool: v.pool, hold }).instruction())
-  );
-}
+// Note: we deliberately DON'T bundle "release my expired holds" into buys. If
+// anyone else (or the cleanup crank) released that hold first, the bundled
+// release would fail and take the buy down with it. Release stays separate.
 
 /** Buy now: fills at the current ask if it is ≤ maxPrice, otherwise nothing happens. */
-export async function buyNowTx(program: HeldProgram, v: Venue, buyer: PublicKey, qty: number, maxPrice: number, expired: PublicKey[] = []) {
+export async function buyNowTx(program: HeldProgram, v: Venue, buyer: PublicKey, qty: number, maxPrice: number) {
   const ix = await program.methods.buyNow(new BN(qty), new BN(maxPrice)).accountsPartial(buyerAccounts(v, buyer)).instruction();
-  return new Transaction().add(...(await releaseIxs(program, v, buyer, expired)), ix);
+  return new Transaction().add(ix);
 }
 
 /** Hold: pay the fee now, the current ask is frozen for `secs`. Returns the hold address too. */
@@ -53,8 +50,7 @@ export async function holdTx(
   qty: number,
   secs: number,
   maxPrice: number,
-  maxFee: number,
-  expired: PublicKey[] = []
+  maxFee: number
 ) {
   // Millisecond timestamp nonce: unique per buyer in practice, and a duplicate
   // simply fails (the hold account already exists) — it can never double-reserve.
@@ -72,7 +68,7 @@ export async function holdTx(
       buyerCollateral: ata(v.marketData.collateralMint, buyer),
     })
     .instruction();
-  return { tx: new Transaction().add(...(await releaseIxs(program, v, buyer, expired)), ix), hold };
+  return { tx: new Transaction().add(ix), hold };
 }
 
 /** Exercise: pay the HELD price and receive the shares, atomically. */

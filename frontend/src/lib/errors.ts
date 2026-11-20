@@ -16,6 +16,7 @@ const BUYER_COPY: Record<string, string> = {
   FeeAboveLimit: "The hold fee changed above what you approved. Nothing was charged.",
   MarketClosed: "Trading is closed for this market.",
   MarketResolved: "This market is resolved, so trading has stopped.",
+  HoldTooLarge: "One hold can reserve at most 100 shares. Hold fewer, or buy now.",
 };
 
 export type ProgramErrorInfo = { name: string; message: string } | null;

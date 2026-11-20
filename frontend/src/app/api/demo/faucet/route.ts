@@ -27,6 +27,8 @@ const SOL_REFILL_BELOW = 0.015 * LAMPORTS_PER_SOL;
 export async function POST(req: Request) {
   return demoRoute(async () => {
     if (!allow(`faucet:${clientKey(req)}`, 5, 60_000)) throw new DemoError("Slow down: try again in a minute.", 429);
+    // Global budget, so free test money can't fund an endless hold-everything loop.
+    if (!allow("faucet:all", 60, 3_600_000)) throw new DemoError("The demo faucet is resting. Try again later.", 429);
     const body = (await req.json().catch(() => ({}))) as { wallet?: unknown };
     if (typeof body.wallet !== "string" || body.wallet.length > 64) throw new DemoError("Invalid wallet address", 400);
     let owner: PublicKey;

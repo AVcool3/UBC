@@ -2127,6 +2127,16 @@ export type HeldQuote = {
       "code": 6019,
       "name": "overflow",
       "msg": "Arithmetic overflow"
+    },
+    {
+      "code": 6020,
+      "name": "resolveBeforeClose",
+      "msg": "A market can only be resolved after trading closes"
+    },
+    {
+      "code": 6021,
+      "name": "holdTooLarge",
+      "msg": "One hold can reserve at most 100 shares"
     }
   ],
   "types": [

@@ -71,6 +71,8 @@ export async function watchSignature(
   let lastContact = Date.now();
   let stage: Stage = "submitted";
   let confirmedAt = 0;
+  // Load-balanced RPCs can briefly disagree; only call it expired after several misses in a row.
+  let expiredMisses = 0;
   for (;;) {
     try {
       const { value } = await connection.getSignatureStatuses([signature], { searchTransactionHistory: true });
@@ -96,7 +98,8 @@ export async function watchSignature(
       if (!s) {
         // Not seen yet. If the blockhash has expired, it can never land: a definite failure.
         const height = await connection.getBlockHeight("confirmed");
-        if (height > lastValidBlockHeight) {
+        expiredMisses = height > lastValidBlockHeight ? expiredMisses + 1 : 0;
+        if (expiredMisses >= 5) {
           on({ stage: "failed", label, signature, at: Date.now(), error: "The transaction expired before it was processed. Nothing happened." });
           writePending(null);
           return "failed";
