@@ -20,8 +20,8 @@ import { REFERENCE_STALE_SECS, walkAsks } from "@/lib/reference";
 const SIZES = [10, 25, 40, 100];
 const cents = (p: number | null) => (p === null ? "—" : `$${p.toFixed(2)}`);
 
-export function ReferencePanel() {
-  const { data: ref, error, loading } = useReference();
+export function ReferencePanel({ marketId = 1 }: { marketId?: number }) {
+  const { data: ref, error, loading } = useReference(marketId);
   const nowSec = Date.now() / 1000;
   const age = ref ? nowSec - (ref.sourceTimestamp ?? ref.retrievedAt) : 0;
   const stale = !!ref && (ref.mode !== "live" || age > REFERENCE_STALE_SECS);

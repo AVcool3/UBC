@@ -68,27 +68,29 @@ export interface VenueState {
   readAt: number;
 }
 
-/** The market + the maker's pool, read from chain. */
-export function useVenue(program: HeldProgram) {
+/** A market + the maker's pool on it, read from chain (defaults to the first market). */
+export function useVenue(program: HeldProgram, market: PublicKey = MARKET) {
   const { connection } = useConnection();
   return usePolling<VenueState>(async () => {
-    const pool = poolPda(MARKET, MAKER);
-    const [marketData, poolData] = await Promise.all([program.account.market.fetch(MARKET), program.account.pool.fetch(pool)]);
+    const pool = poolPda(market, MAKER);
+    const [marketData, poolData] = await Promise.all([program.account.market.fetch(market), program.account.pool.fetch(pool)]);
     const vault = await connection.getTokenAccountBalance(poolData.yesVault, "confirmed");
-    return { market: MARKET, marketData, pool, poolData, vaultShares: Number(vault.value.amount), readAt: Date.now() };
-  }, [program, connection]);
+    return { market, marketData, pool, poolData, vaultShares: Number(vault.value.amount), readAt: Date.now() };
+  }, [program, connection, market.toBase58()]);
 }
 
-/** The connected buyer's holds in this pool, newest first. */
-export function useMyHolds(program: HeldProgram, buyer: PublicKey | null) {
+/** The connected buyer's holds (optionally only in one pool), newest first. */
+export function useMyHolds(program: HeldProgram, buyer: PublicKey | null, pool?: PublicKey) {
   return usePolling<WithKey<HoldAccount>[]>(
     buyer
       ? async () => {
           const holds = await program.account.hold.all([{ memcmp: { offset: HOLD_BUYER_OFFSET, bytes: buyer.toBase58() } }]);
-          return holds.sort((a, b) => b.account.createdAt.toNumber() - a.account.createdAt.toNumber());
+          return holds
+            .filter((h) => !pool || h.account.pool.equals(pool))
+            .sort((a, b) => b.account.createdAt.toNumber() - a.account.createdAt.toNumber());
         }
       : null,
-    [program, buyer?.toBase58()]
+    [program, buyer?.toBase58(), pool?.toBase58()]
   );
 }
 
@@ -113,13 +115,13 @@ export function useBalances(owner: PublicKey | null, yesMint: PublicKey | null) 
   );
 }
 
-/** Display-only reference quote from our server adapter. */
-export function useReference() {
+/** Display-only reference quote from our server adapter, for one market (by id). */
+export function useReference(marketId = 1) {
   return usePolling<ReferenceQuote>(async () => {
-    const res = await fetch("/api/reference", { cache: "no-store" });
+    const res = await fetch(`/api/reference?market=${marketId}`, { cache: "no-store" });
     if (!res.ok) throw new Error(`Reference unavailable (${res.status})`);
     return (await res.json()) as ReferenceQuote;
-  }, [], 10_000);
+  }, [marketId], 10_000);
 }
 
 /**

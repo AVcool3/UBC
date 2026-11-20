@@ -21,7 +21,7 @@ import { useWalletModal } from "@solana/wallet-adapter-react-ui";
 import type { PublicKey, Transaction } from "@solana/web3.js";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { buyNowTx, exerciseTx, holdTx, releaseTx } from "@/lib/actions";
-import { explorerAddress, PRICE_TICK } from "@/lib/contracts";
+import { explorerAddress, PRICE_TICK, type MarketEntry } from "@/lib/contracts";
 import { callDemo, DEMO_MODE } from "@/lib/demo";
 import { DemoWalletName } from "@/lib/demoWallet";
 import { friendlyError } from "@/lib/errors";
@@ -42,15 +42,15 @@ const MAX_HOLD_QTY = 100;
 /** Rent for a Hold account (~0.0021 SOL). It stays locked: the account IS your receipt. */
 const HOLD_RENT_SOL = 0.0021;
 
-export function Ticket() {
+export function Ticket({ entry }: { entry: MarketEntry }) {
   const { connection } = useConnection();
   const { program, wallet } = useHeldProgram();
   const { select } = useWallet();
   const { setVisible } = useWalletModal();
-  const venue = useVenue(program);
+  const venue = useVenue(program, entry.market);
   const v = venue.data;
   const buyer = wallet?.publicKey ?? null;
-  const holds = useMyHolds(program, buyer);
+  const holds = useMyHolds(program, buyer, entry.pool);
   const balances = useBalances(buyer, v?.marketData.yesMint ?? null);
   const chainNow = useChainNow();
 
@@ -154,7 +154,7 @@ export function Ticket() {
     setBusy(true);
     setHistory([{ stage: "submitted", label: `Simulated: maker moves ask ${direction}`, at: Date.now() }]);
     try {
-      const sig = await callDemo("reprice", { direction });
+      const sig = await callDemo("reprice", { direction, market: entry.id });
       setHistory((h) => [...h, { stage: "confirmed", label: `Simulated maker reprice (${direction === "up" ? "+" : "−"}$0.03)`, signature: sig, at: Date.now() }]);
       announceChainChange();
     } catch (e) {

@@ -5,27 +5,41 @@
  * Left column: the market's terms and the display-only reference price.
  */
 import Link from "next/link";
+import { useEffect, useState } from "react";
+import { MarketPicker } from "@/components/MarketPicker";
 import { ReferencePanel } from "@/components/ReferencePanel";
 import { Ticket } from "@/components/Ticket";
-import { EXAMPLES, explorerAddress, MARKET, PROGRAM_ID } from "@/lib/contracts";
+import { EXAMPLES, explorerAddress, MARKETS, PROGRAM_ID } from "@/lib/contracts";
 import { short } from "@/lib/format";
 import { useVenue } from "@/lib/hooks";
 import { useHeldProgram } from "@/lib/program";
 
 export default function TradePage() {
   const { program } = useHeldProgram();
-  const venue = useVenue(program);
+  // Selected market lives in the URL (?m=2) so links and refreshes keep it.
+  const [marketId, setMarketId] = useState(MARKETS[0].id);
+  useEffect(() => {
+    const fromUrl = Number(new URLSearchParams(window.location.search).get("m"));
+    if (MARKETS.some((x) => x.id === fromUrl)) setMarketId(fromUrl);
+  }, []);
+  const select = (id: number) => {
+    setMarketId(id);
+    window.history.replaceState(null, "", `?m=${id}`);
+  };
+  const entry = MARKETS.find((x) => x.id === marketId) ?? MARKETS[0];
+  const venue = useVenue(program, entry.market);
   const m = venue.data?.marketData;
 
   return (
     <>
+      <MarketPicker markets={MARKETS} selected={entry.id} onSelect={select} />
       {/* Question first on every screen size. */}
       <div className="mb-4">
         <p className="text-xs font-semibold uppercase tracking-wide text-muted">
           Binary market · YES pays $1 if it happens
         </p>
         <h1 className="mt-1 text-2xl font-extrabold leading-tight tracking-tight sm:text-3xl">
-          {m?.question ?? "Loading market…"}
+          {m?.question ?? entry.question}
         </h1>
       </div>
       <div className="grid gap-6 lg:grid-cols-12">
@@ -57,17 +71,17 @@ export default function TradePage() {
                 <dd className="inline">
                   <a
                     className="font-mono text-accent underline"
-                    href={explorerAddress(MARKET.toBase58())}
+                    href={explorerAddress(entry.market.toBase58())}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    {short(MARKET)}
+                    {short(entry.market)}
                   </a>
                 </dd>
               </div>
             </dl>
           )}
-          <ReferencePanel />
+          <ReferencePanel marketId={entry.id} />
 
           <section className="rounded-2xl border border-line bg-surface p-4 text-sm">
             <h2 className="font-semibold">
@@ -130,7 +144,8 @@ export default function TradePage() {
         {/* ---- Order ticket (columns 8–12 on desktop; first on mobile) ---- */}
         <div className="order-first lg:order-none lg:col-span-5">
           <div className="lg:sticky lg:top-20">
-            <Ticket />
+            {/* key: switching markets remounts the ticket so no state carries over */}
+            <Ticket key={entry.id} entry={entry} />
           </div>
         </div>
       </div>

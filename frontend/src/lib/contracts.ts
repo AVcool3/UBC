@@ -26,7 +26,28 @@ export const COLLATERAL_MINT = pk(process.env.NEXT_PUBLIC_HELD_COLLATERAL_MINT, 
 /** The IDL with its address set to PROGRAM_ID, ready for `new Program(IDL, provider)`. */
 export const IDL = { ...idlJson, address: PROGRAM_ID.toBase58() } as HeldQuote;
 
-/** Display-only reference market (never executable here). */
+/** One tradable devnet market and the display-only Gemini contract it mirrors. */
+export interface MarketEntry {
+  id: number;
+  market: PublicKey;
+  pool: PublicKey;
+  question: string;
+  category: string;
+  closeTime: string;
+  /** Ask the demo maker was seeded at; the demo "reprice" button stays within ±$0.06 of it. */
+  baseAsk: number;
+  reference: { venue: string; symbol: string; event: string; label: string };
+}
+
+/** Every market this build trades, pinned from deployment.json (written by `npm run seed-markets`). */
+export const MARKETS: MarketEntry[] = deployment.markets.map((m) => ({
+  ...m,
+  market: new PublicKey(m.market),
+  pool: new PublicKey(m.pool),
+}));
+export const marketById = (id: number) => MARKETS.find((m) => m.id === id);
+
+/** Display-only reference notes shared by all markets (never executable here). */
 export const REFERENCE = deployment.reference;
 /** Real example transactions captured when the demo was seeded (for the wallet-free receipt path). */
 export const EXAMPLES = deployment.examples;

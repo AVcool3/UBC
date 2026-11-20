@@ -22,5 +22,71 @@
     "exercisedHold": "4j1mby9NSXo1ZbHQqDm83CPC7sXaGd9mv19EYBTaFQZs",
     "holdReleased": "4ocHfkzwKFQEfPBbUzcwKBZGNe8wGxs44KiP3kGqkfK82KtiS9uCaH5SLG42ZuLtfLBxh8P7Edzc1woaMbkfUE6Q",
     "releasedHold": "DFNSTqtusUbpaTZafAQuxNiGzKZ4w92EDZ4TWqwkiA8f"
-  }
+  },
+  "markets": [
+    {
+      "id": 1,
+      "market": "gnEJjx6joydxAyRvMGxHfdV26niTpyy46KwU4PvKzUd",
+      "pool": "BQEGNeDdEnXLnsu97n8DfefFtDsJLDHQJ7NSM2Rtvunx",
+      "yesMint": "9WH43cawNmfzBkrxqVj1VcseyeaVR5DJH92umNoWJ3NE",
+      "question": "Will the Fed raise rates by 25 bps at its December 9, 2026 meeting?",
+      "category": "Economics",
+      "closeTime": "2026-12-09T18:00:00Z",
+      "reference": {
+        "venue": "Gemini Predictions",
+        "symbol": "GEMI-FED261211-HIKE25",
+        "event": "FED261211",
+        "label": "Hike 25bps"
+      },
+      "baseAsk": 930000
+    },
+    {
+      "id": 2,
+      "market": "4TTrTWtDwVA1683y6gDJtDCPvKWJLAH1b1La8t5CPrJC",
+      "pool": "5qdZBZFmXrDU5TVjthV384LfCpz385HFejiKmZ3UaRPS",
+      "yesMint": "HprcNUpcFsJWSuinjTWrkkEwaWbdyvCdcUTHDq87Qnme",
+      "question": "Will Bitcoin be at $60,000 or above on November 27, 2026 (5pm ET)?",
+      "category": "Crypto",
+      "closeTime": "2026-11-27T21:00:00Z",
+      "reference": {
+        "venue": "Gemini Predictions",
+        "symbol": "GEMI-BTC2611272200-HI60000",
+        "event": "BTC2611272200",
+        "label": "$60,000 or above"
+      },
+      "baseAsk": 470000
+    },
+    {
+      "id": 3,
+      "market": "UDPtc9tS49bwUDpHN2BKiPVTPJyRCWByEBRfRsDAFbt",
+      "pool": "3qLqzrd7ywmGeADYnmYvfxZDceFJnLSdrPteiXpvWCi7",
+      "yesMint": "4BnmbuVweMc8uWzdZ2s6G6PFFw2qGPw1znBQfRaeuVkp",
+      "question": "Will Portland beat New York (NBA, Nov 21)?",
+      "category": "Sports",
+      "closeTime": "2026-11-22T00:30:00Z",
+      "reference": {
+        "venue": "Gemini Predictions",
+        "symbol": "GEMI-NBA-2611220030-POR-NYK-M-POR",
+        "event": "NBA-2611220030-POR-NYK-M",
+        "label": "Portland"
+      },
+      "baseAsk": 350000
+    },
+    {
+      "id": 4,
+      "market": "8CBt3uf9cAwBc32s3kYj9VwTqLyaj4e8yvjFninzcJD9",
+      "pool": "5kt8gsNPSig8Z5CScMEjSzKEpLCpHMceE6JtNoiv6MEn",
+      "yesMint": "CtGnDwWruJ8QjJjEf1VmGLGhqvHgbmbtR5DKBn1jfdFL",
+      "question": "Will Austin's high temperature today (Nov 20) be 76\u201377\u00b0F?",
+      "category": "Weather",
+      "closeTime": "2026-11-21T04:00:00Z",
+      "reference": {
+        "venue": "Gemini Predictions",
+        "symbol": "GEMI-WXHIGH-AUS-2611210459-76TO77",
+        "event": "WXHIGH-AUS-2611210459",
+        "label": "76\u00b0F to 77\u00b0F"
+      },
+      "baseAsk": 740000
+    }
+  ]
 }

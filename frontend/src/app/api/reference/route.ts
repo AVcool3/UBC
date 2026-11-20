@@ -1,6 +1,9 @@
 /**
  * GET /api/reference — read-only reference data from Gemini Predictions.
  *
+ * `?market=<id>` picks one of OUR pinned markets (lib/contracts MARKETS); only
+ * those markets' Gemini symbols can ever be requested (allowlist).
+ *
  * Three public, unauthenticated endpoints on ONE hard-coded host:
  *   /v1/book/<symbol>                     order book (5 levels per side)    cached 5 s
  *   /v1/trades/<symbol>                   recent public trades              cached 30 s
@@ -14,7 +17,7 @@
  */
 import { NextResponse } from "next/server";
 import recorded from "@/data/gemini-recorded.json";
-import { REFERENCE } from "@/lib/contracts";
+import { marketById, type MarketEntry } from "@/lib/contracts";
 import type { ReferenceEvent, ReferenceLevel, ReferenceQuote, ReferenceTrade } from "@/lib/reference";
 import { allow, clientKey } from "@/lib/server/rateLimit";
 
@@ -22,16 +25,14 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const HOST = "https://api.gemini.com";
-const SYMBOL = REFERENCE.symbol;
-/** "GEMI-FED261211-HIKE25" → event ticker "FED261211". */
-const EVENT_TICKER = SYMBOL.split("-")[1] ?? "";
 const MAX_BYTES = 256 * 1024;
 
 type Cached<T> = { at: number; value: T } | null;
-let bookCache: Cached<ReferenceQuote> = null;
-let lastGoodBook: ReferenceQuote | null = null;
-let tradesCache: Cached<ReferenceTrade[]> = null;
-let eventCache: Cached<ReferenceEvent | null> = null;
+// Caches keyed by Gemini symbol (only allowlisted symbols ever get a key).
+const bookCache = new Map<string, Cached<ReferenceQuote>>();
+const lastGoodBook = new Map<string, ReferenceQuote>();
+const tradesCache = new Map<string, Cached<ReferenceTrade[]>>();
+const eventCache = new Map<string, Cached<ReferenceEvent | null>>();
 
 async function getJson(path: string): Promise<unknown> {
   const res = await fetch(`${HOST}${path}`, { signal: AbortSignal.timeout(4_000), cache: "no-store", headers: { accept: "application/json" } });
@@ -61,7 +62,7 @@ function parseLevels(raw: unknown): { levels: ReferenceLevel[]; ts: number | nul
   return { levels, ts };
 }
 
-async function fetchBook(): Promise<ReferenceQuote> {
+async function fetchBook(SYMBOL: string): Promise<ReferenceQuote> {
   const body = (await getJson(`/v1/book/${encodeURIComponent(SYMBOL)}?limit_bids=5&limit_asks=5`)) as { bids?: unknown; asks?: unknown };
   const bids = parseLevels(body.bids);
   const asks = parseLevels(body.asks);
@@ -79,7 +80,7 @@ async function fetchBook(): Promise<ReferenceQuote> {
   };
 }
 
-async function fetchTrades(): Promise<ReferenceTrade[]> {
+async function fetchTrades(SYMBOL: string): Promise<ReferenceTrade[]> {
   const raw = await getJson(`/v1/trades/${encodeURIComponent(SYMBOL)}?limit_trades=8`);
   if (!Array.isArray(raw)) throw new Error("trades is not an array");
   return raw.slice(0, 8).flatMap((t) => {
@@ -92,8 +93,8 @@ async function fetchTrades(): Promise<ReferenceTrade[]> {
   });
 }
 
-async function fetchEvent(): Promise<ReferenceEvent | null> {
-  if (!/^[A-Z0-9]{3,20}$/.test(EVENT_TICKER)) return null;
+async function fetchEvent(EVENT_TICKER: string): Promise<ReferenceEvent | null> {
+  if (!/^[A-Z0-9-]{3,40}$/.test(EVENT_TICKER)) return null;
   const raw = (await getJson(`/v1/prediction-markets/events/${EVENT_TICKER}`)) as Record<string, unknown>;
   const d = ((raw.data as Record<string, unknown>) ?? raw) as Record<string, unknown>;
   const contracts = Array.isArray(d.contracts) ? d.contracts : [];
@@ -119,7 +120,9 @@ async function fetchEvent(): Promise<ReferenceEvent | null> {
   };
 }
 
-function recordedQuote(): ReferenceQuote {
+/** Recorded fallback exists only for the contract it was captured from. */
+function recordedQuote(symbol: string): ReferenceQuote | null {
+  if (symbol !== recorded.symbol) return null;
   const toLevels = (side: { price: string; amount: string }[]) => side.map((l) => ({ price: Number(l.price), amount: Number(l.amount) }));
   const at = Math.floor(Date.parse(recorded.capturedAtUtc) / 1000);
   return {
@@ -148,30 +151,41 @@ async function cached<T>(cache: Cached<T>, ttlMs: number, load: () => Promise<T>
 }
 
 export async function GET(req: Request) {
-  const fresh = bookCache && Date.now() - bookCache.at < 5_000;
-  if (!fresh && !allow(`ref:${clientKey(req)}`, 30, 60_000)) {
+  const id = Number(new URL(req.url).searchParams.get("market") ?? 1);
+  const spec: MarketEntry | undefined = Number.isInteger(id) ? marketById(id) : undefined;
+  if (!spec) return NextResponse.json({ error: "Unknown market" }, { status: 404 });
+  const symbol = spec.reference.symbol;
+
+  const cachedBook = bookCache.get(symbol);
+  const fresh = cachedBook && Date.now() - cachedBook.at < 5_000;
+  if (!fresh && !allow(`ref:${clientKey(req)}`, 60, 60_000)) {
     return NextResponse.json({ error: "Too many requests" }, { status: 429 });
   }
 
-  // Book (required): live → stale → recorded.
+  // Book (required): live → stale → recorded (Fed contract only) → error.
   let book: ReferenceQuote;
-  if (fresh) book = bookCache!.value;
+  if (fresh) book = cachedBook!.value;
   else {
     try {
-      book = await fetchBook();
-      lastGoodBook = book;
+      book = await fetchBook(symbol);
+      lastGoodBook.set(symbol, book);
     } catch (e) {
-      book = lastGoodBook
-        ? { ...lastGoodBook, mode: "stale", note: `Last good quote; live fetch failed (${(e as Error).message}).` }
-        : recordedQuote();
+      const last = lastGoodBook.get(symbol);
+      const rec = recordedQuote(symbol);
+      if (last) book = { ...last, mode: "stale", note: `Last good quote; live fetch failed (${(e as Error).message}).` };
+      else if (rec) book = rec;
+      else return NextResponse.json({ error: "Reference unavailable" }, { status: 503 });
     }
-    bookCache = { at: Date.now(), value: book };
+    bookCache.set(symbol, { at: Date.now(), value: book });
   }
 
   // Extras (optional): fetched in parallel, each with its own cache.
-  const [t, ev] = await Promise.all([cached(tradesCache, 30_000, fetchTrades, []), cached(eventCache, 60_000, fetchEvent, null)]);
-  tradesCache = t.next;
-  eventCache = ev.next;
+  const [t, ev] = await Promise.all([
+    cached(tradesCache.get(symbol) ?? null, 30_000, () => fetchTrades(symbol), []),
+    cached(eventCache.get(symbol) ?? null, 60_000, () => fetchEvent(spec.reference.event), null),
+  ]);
+  tradesCache.set(symbol, t.next);
+  eventCache.set(symbol, ev.next);
 
   return NextResponse.json({ ...book, trades: t.value, event: ev.value } satisfies ReferenceQuote);
 }
